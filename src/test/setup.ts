@@ -6,3 +6,9 @@ import { afterEach } from 'vitest';
 afterEach(() => {
   cleanup();
 });
+
+if (typeof Element !== 'undefined') {
+  Element.prototype.setPointerCapture ??= () => {};
+  Element.prototype.releasePointerCapture ??= () => {};
+  Element.prototype.hasPointerCapture ??= () => false;
+}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router';
+import { Plus } from 'lucide-react';
+import { Link, Outlet } from 'react-router';
 import { OfflineBanner } from '@/components/feedback/OfflineBanner';
 import { BottomNav } from './BottomNav';
 import { Header } from './Header';
@@ -51,6 +52,16 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+
+      {!isDesktop ? (
+        <Link
+          to="/movimientos"
+          aria-label="Registrar movimiento"
+          className="fixed bottom-20 right-4 z-30 flex size-14 items-center justify-center rounded-full bg-primary text-primary-ink shadow-lg transition hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        >
+          <Plus className="size-6" aria-hidden="true" />
+        </Link>
+      ) : null}
 
       {isDesktop ? null : <BottomNav />}
     </div>
