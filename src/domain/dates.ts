@@ -37,6 +37,10 @@ export function toMonthKey(date: ISODate): MonthKey {
   return date.slice(0, 7) as MonthKey;
 }
 
+export function currentMonth(now: Date = new Date()): MonthKey {
+  return toMonthKey(todayInLima(now));
+}
+
 export function monthKeyFromParts(year: number, month: number): MonthKey {
   if (!Number.isInteger(year) || year < 1000 || year > 9999) {
     throw new RangeError('El año debe tener cuatro dígitos.');
