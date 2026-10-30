@@ -7,7 +7,6 @@ import GoalsPage from '@/routes/GoalsPage';
 import NotFoundPage from '@/routes/NotFoundPage';
 import OfflinePage from '@/routes/OfflinePage';
 import OnboardingPage from '@/routes/OnboardingPage';
-import SettingsPage from '@/routes/SettingsPage';
 import TransactionsPage from '@/routes/TransactionsPage';
 
 const shellRoutes: RouteObject[] = [
@@ -16,7 +15,7 @@ const shellRoutes: RouteObject[] = [
   { path: 'presupuesto', Component: BudgetPage },
   { path: 'reportes', lazy: () => import('@/routes/ReportsPage').then((m) => ({ Component: m.default })) },
   { path: 'metas', Component: GoalsPage },
-  { path: 'ajustes', Component: SettingsPage },
+  { path: 'ajustes', lazy: () => import('@/routes/SettingsPage').then((m) => ({ Component: m.default })) },
   { path: 'importar', lazy: () => import('@/routes/ImportPage').then((m) => ({ Component: m.default })) },
   { path: '*', Component: NotFoundPage },
 ];
