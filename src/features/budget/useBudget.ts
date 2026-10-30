@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router';
 import { db } from '@/db/db';
 import { categoryRepo } from '@/db/repositories/categories';
 import { planRepo, type PayItemInput } from '@/db/repositories/plans';
-import { computeBudgetSnapshot } from '@/domain/budget';
+import { computeBudgetSnapshot, computeDailyAllowance } from '@/domain/budget';
 import { currentMonth } from '@/domain/dates';
 import type { Cents, MonthKey, UUID, VariableBudget } from '@/domain/models';
 
@@ -68,6 +68,8 @@ export function useBudget() {
       const variableCategories = categories.filter(
         (c) => !c.archived && c.kind === 'expense' && c.group === 'variable',
       );
+      const isClosed = plan.status === 'closed';
+      const dailyAllowance = computeDailyAllowance(snapshot, month, { isClosed });
 
       return {
         plan,
@@ -78,7 +80,8 @@ export function useBudget() {
         variableCategories,
         transactions,
         snapshot,
-        isClosed: plan.status === 'closed',
+        isClosed,
+        dailyAllowance,
       };
     },
     [month],
@@ -178,6 +181,7 @@ export function useBudget() {
     transactions: budgetData?.transactions ?? [],
     snapshot: budgetData?.snapshot ?? null,
     isClosed: budgetData?.isClosed ?? false,
+    dailyAllowance: budgetData?.dailyAllowance ?? null,
     payFixed,
     receiveIncome,
     skipItem,

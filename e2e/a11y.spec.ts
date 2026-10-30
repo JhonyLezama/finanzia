@@ -21,6 +21,18 @@ for (const route of routes) {
   });
 }
 
+test('the floating calculator has no axe violations', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Abrir calculadora' }).click();
+
+  const dialog = page.getByRole('dialog', { name: 'Calculadora' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByLabel('Resultado')).toHaveText('0');
+
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+});
+
 test('opens the quick-add drawer with the keyboard and closes it with Escape', async ({ page }) => {
   await page.goto('/movimientos');
 

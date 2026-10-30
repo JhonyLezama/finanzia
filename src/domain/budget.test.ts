@@ -4,8 +4,10 @@ import type { ISODate, MonthKey, MonthlyPlan, Transaction } from './models';
 import {
   computeBalanceAtMonthEnd,
   computeBudgetSnapshot,
+  computeDailyAllowance,
   computeSavingsRate,
   computeVariance,
+  type BudgetSnapshot,
 } from './budget';
 import { fixtureOctober2026, fixtureTransactions } from '@/test/fixtures/october-2026';
 
@@ -153,6 +155,127 @@ describe('computeBalanceAtMonthEnd', () => {
     );
 
     expect(computeBalanceAtMonthEnd(transactions, '2026-10' as MonthKey)).toBe(252000);
+  });
+});
+
+describe('computeDailyAllowance', () => {
+  const fixture = fixtureOctober2026();
+  const snapshot = computeBudgetSnapshot(fixture);
+
+  it('divides the remaining variable budget by the days left in the month', () => {
+    const remaining = snapshot.variablePlanCents - snapshot.variableExpenseCents;
+    const allowance = computeDailyAllowance(snapshot, '2026-10' as MonthKey, {
+      today: '2026-10-20' as ISODate,
+    });
+
+    expect(allowance).toEqual({
+      amountCents: Math.floor(remaining / 12),
+      days: 12,
+      basis: 'budget',
+    });
+  });
+
+  it('includes today when counting the days left', () => {
+    const allowance = computeDailyAllowance(snapshot, '2026-10' as MonthKey, {
+      today: '2026-10-31' as ISODate,
+    });
+
+    expect(allowance?.days).toBe(1);
+  });
+
+  it('uses the spendable balance when there are no variable budgets', () => {
+    const withoutBudgets = computeBudgetSnapshot({
+      ...fixture,
+      plan: { ...fixture.plan, variableBudgets: [] },
+    });
+    const allowance = computeDailyAllowance(withoutBudgets, '2026-10' as MonthKey, {
+      today: '2026-10-20' as ISODate,
+    });
+
+    expect(allowance).toEqual({
+      amountCents: Math.floor(Math.max(0, withoutBudgets.spendableCents) / 12),
+      days: 12,
+      basis: 'available',
+    });
+  });
+
+  it('uses the real length of February', () => {
+    const february: MonthlyPlan = {
+      id: '2026-02' as MonthKey,
+      year: 2026,
+      month: 2,
+      status: 'active',
+      savingsTargetCents: asCents(0),
+      variableBudgets: [{ categoryId: 'cat-food', plannedCents: asCents(28000) }],
+      createdAt: '2026-02-01T00:00:00.000Z' as MonthlyPlan['createdAt'],
+      updatedAt: '2026-02-01T00:00:00.000Z' as MonthlyPlan['updatedAt'],
+    };
+    const snap = computeBudgetSnapshot({
+      transactions: [],
+      plan: february,
+      planItems: [],
+      categories: [],
+      currentMonth: '2026-02' as MonthKey,
+    });
+
+    const allowance = computeDailyAllowance(
+      { ...snap, spendableCents: asCents(30000) },
+      '2026-02' as MonthKey,
+      {
+        today: '2026-02-01' as ISODate,
+      },
+    );
+
+    expect(allowance).toEqual({ amountCents: asCents(1000), days: 28, basis: 'budget' });
+  });
+
+  it('never recommends more than the spendable balance', () => {
+    const tightCash: BudgetSnapshot = {
+      ...snapshot,
+      spendableCents: asCents(24000),
+    };
+
+    const allowance = computeDailyAllowance(tightCash, '2026-10' as MonthKey, {
+      today: '2026-10-20' as ISODate,
+    });
+
+    expect(allowance).toEqual({ amountCents: asCents(2000), days: 12, basis: 'available' });
+  });
+
+  it('returns null outside the current month', () => {
+    expect(
+      computeDailyAllowance(snapshot, '2026-10' as MonthKey, {
+        today: '2026-11-01' as ISODate,
+      }),
+    ).toBeNull();
+    expect(
+      computeDailyAllowance(snapshot, '2026-10' as MonthKey, {
+        today: '2026-09-30' as ISODate,
+      }),
+    ).toBeNull();
+  });
+
+  it('returns null for a closed month', () => {
+    expect(
+      computeDailyAllowance(snapshot, '2026-10' as MonthKey, {
+        today: '2026-10-20' as ISODate,
+        isClosed: true,
+      }),
+    ).toBeNull();
+  });
+
+  it('never returns a negative daily amount', () => {
+    const negative: BudgetSnapshot = {
+      ...snapshot,
+      spendableCents: -5000 as BudgetSnapshot['spendableCents'],
+      variablePlanCents: asCents(0),
+    };
+
+    expect(
+      computeDailyAllowance(negative, '2026-10' as MonthKey, {
+        today: '2026-10-20' as ISODate,
+      })?.amountCents,
+    ).toBe(0);
   });
 });
 

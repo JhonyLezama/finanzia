@@ -58,6 +58,21 @@ test('flags duplicated rows on a second import', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Confirmar importación' })).toBeDisabled();
 });
 
+test('calculates with the floating calculator without leaving the page', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('button', { name: 'Abrir calculadora' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Calculadora' });
+  await expect(dialog).toBeVisible();
+
+  await page.keyboard.type('12+8');
+  await page.keyboard.press('Enter');
+  await expect(dialog.getByLabel('Resultado')).toHaveText('20');
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+});
+
 async function uploadBankCsv(page: import('@playwright/test').Page) {
   const csv = ['fecha,descripcion,monto', '28/10/2026,Cine,-60.00', '27/10/2026,Sueldo,2500.00'].join(
     '\n',

@@ -1,5 +1,13 @@
-import { isDateInMonth, monthRange } from './dates';
-import type { Category, Cents, MonthlyPlan, MonthKey, PlanItem, Transaction } from './models';
+import { daysInMonth, isDateInMonth, monthRange, todayInLima, toMonthKey } from './dates';
+import type {
+  Category,
+  Cents,
+  ISODate,
+  MonthlyPlan,
+  MonthKey,
+  PlanItem,
+  Transaction,
+} from './models';
 
 export interface BudgetSnapshot {
   availableCents: Cents;
@@ -177,4 +185,47 @@ export function computeBalanceAtMonthEnd(
     .reduce((sum, transaction) => sum + signedAmount(transaction), 0);
 
   return toCents(total);
+}
+
+export type DailyAllowanceBasis = 'budget' | 'available';
+
+export interface DailyAllowance {
+  amountCents: Cents;
+  days: number;
+  basis: DailyAllowanceBasis;
+}
+
+export interface DailyAllowanceOptions {
+  today?: ISODate;
+  isClosed?: boolean;
+}
+
+export function computeDailyAllowance(
+  snapshot: BudgetSnapshot,
+  month: MonthKey,
+  { today = todayInLima(), isClosed = false }: DailyAllowanceOptions = {},
+): DailyAllowance | null {
+  if (isClosed || month !== toMonthKey(today)) {
+    return null;
+  }
+
+  const day = Number(today.slice(8, 10));
+  const days = daysInMonth(month) - day + 1;
+  if (days <= 0) {
+    return null;
+  }
+
+  const usesBudget = snapshot.variablePlanCents > 0;
+  const budgetRemaining = Math.max(
+    0,
+    snapshot.variablePlanCents - snapshot.variableExpenseCents,
+  );
+  const cashRemaining = Math.max(0, snapshot.spendableCents);
+  const base = usesBudget ? Math.min(budgetRemaining, cashRemaining) : cashRemaining;
+
+  return {
+    amountCents: toCents(Math.floor(base / days)),
+    days,
+    basis: usesBudget && budgetRemaining <= cashRemaining ? 'budget' : 'available',
+  };
 }

@@ -25,6 +25,7 @@ export default function BudgetPage() {
     transactions,
     snapshot,
     isClosed,
+    dailyAllowance,
     payFixed,
     receiveIncome,
     skipItem,
@@ -129,7 +130,7 @@ export default function BudgetPage() {
       </div>
 
       {/* Plan Summary */}
-      <PlanSummary snapshot={snapshot} />
+      <PlanSummary snapshot={snapshot} dailyAllowance={dailyAllowance} />
 
       {/* Sections */}
       <IncomeSection

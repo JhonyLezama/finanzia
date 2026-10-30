@@ -1,13 +1,14 @@
 import { Card } from '@/components/ui/Card';
 import { Money } from '@/components/ui/Money';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import type { BudgetSnapshot } from '@/domain/budget';
+import type { BudgetSnapshot, DailyAllowance } from '@/domain/budget';
 
 export interface PlanSummaryProps {
   snapshot: BudgetSnapshot | null;
+  dailyAllowance?: DailyAllowance | null;
 }
 
-export function PlanSummary({ snapshot }: PlanSummaryProps) {
+export function PlanSummary({ snapshot, dailyAllowance = null }: PlanSummaryProps) {
   if (!snapshot) {
     return null;
   }
@@ -74,6 +75,35 @@ export function PlanSummary({ snapshot }: PlanSummaryProps) {
         </div>
         <ProgressBar value={executionPct} tone={tone} />
       </div>
+
+      {dailyAllowance ? (
+        <div className="rounded-[var(--radius-card)] border border-primary/30 bg-primary/10 p-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="text-sm text-ink">
+              {dailyAllowance.amountCents > 0 ? (
+                <>
+                  Podés gastar{' '}
+                  <span className="text-base font-semibold">
+                    <Money cents={dailyAllowance.amountCents} />
+                  </span>{' '}
+                  por día
+                </>
+              ) : (
+                'Sin margen diario por ahora'
+              )}
+            </p>
+            <p className="text-xs text-ink-muted">
+              {dailyAllowance.days === 1
+                ? 'Queda 1 día'
+                : `Quedan ${dailyAllowance.days} días`}{' '}
+              ·{' '}
+              {dailyAllowance.basis === 'budget'
+                ? 'según tu presupuesto variable'
+                : 'según tu saldo disponible'}
+            </p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

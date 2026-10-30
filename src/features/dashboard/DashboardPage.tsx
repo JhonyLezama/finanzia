@@ -27,6 +27,7 @@ export default function DashboardPage() {
     categories,
     snapshot,
     isClosed,
+    dailyAllowance,
     isCurrentMonth,
     settings,
     goals,
@@ -169,6 +170,7 @@ export default function DashboardPage() {
         executionPct={executionPct}
         savingsRate={savingsRate}
         monthlyGoalContribCents={monthlyGoalContribCents}
+        dailyAllowance={dailyAllowance}
       />
 
       <PlanBreakdown

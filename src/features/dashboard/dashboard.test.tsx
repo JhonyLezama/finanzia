@@ -87,6 +87,7 @@ describe('dashboard screen', () => {
 
     const spendable = screen.getByRole('group', { name: 'Disponible para gastar' });
     expect(await within(spendable).findByText('S/ 2,650.00')).toBeInTheDocument();
+    expect(within(spendable).getByText(/por día/i)).toBeInTheDocument();
 
     const executed = screen.getByRole('group', { name: 'Ejecutado del mes' });
     expect(await within(executed).findByText(/41[.,]7\s*%/)).toBeInTheDocument();
@@ -210,6 +211,7 @@ describe('dashboard screen', () => {
 
     const balance = await screen.findByRole('group', { name: 'Saldo del mes' });
     expect(await within(balance).findByText('S/ 2,950.00')).toBeInTheDocument();
+    expect(screen.queryByText(/por día/i)).not.toBeInTheDocument();
     expect(
       screen.queryByRole('group', { name: 'Disponible para gastar' }),
     ).not.toBeInTheDocument();

@@ -73,6 +73,8 @@ describe('budget screen', () => {
         ]),
       });
     });
+
+    expect(await screen.findByText(/por día/i)).toBeInTheDocument();
   });
 
   it('shows a closed month as read-only', async () => {

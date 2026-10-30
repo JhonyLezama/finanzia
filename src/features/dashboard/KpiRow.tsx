@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Money } from '@/components/ui/Money';
+import type { DailyAllowance } from '@/domain/budget';
 import { formatPercent } from '@/domain/money';
 import type { Cents } from '@/domain/models';
 import { cn } from '@/lib/cn';
@@ -17,6 +18,7 @@ export interface KpiRowProps {
   executionPct: number | null;
   savingsRate: number | null;
   monthlyGoalContribCents: Cents;
+  dailyAllowance: DailyAllowance | null;
 }
 
 interface KpiCardProps {
@@ -55,6 +57,7 @@ export function KpiRow({
   executionPct,
   savingsRate,
   monthlyGoalContribCents,
+  dailyAllowance,
 }: KpiRowProps) {
   const executionHint =
     planExpenseCents > 0 ? (
@@ -86,14 +89,34 @@ export function KpiRow({
           label="Disponible para gastar"
           tone={spendableCents < 0 ? 'negative' : 'default'}
           hint={
-            <details>
-              <summary className="cursor-pointer select-none">¿Cómo se calcula?</summary>
-              <p className="mt-1">
-                Saldo real <Money cents={availableCents} /> − fijos pendientes{' '}
-                <Money cents={pendingFixedCents} /> − ahorro pendiente{' '}
-                <Money cents={remainingSavingsCents} />
-              </p>
-            </details>
+            <div className="space-y-1">
+              {dailyAllowance ? (
+                dailyAllowance.amountCents > 0 ? (
+                  <p className="font-medium text-ink">
+                    Podés gastar <Money cents={dailyAllowance.amountCents} /> por día
+                    <span className="block text-ink-muted">
+                      {dailyAllowance.days === 1
+                        ? 'Queda 1 día'
+                        : `Quedan ${dailyAllowance.days} días`}
+                      {' · '}
+                      {dailyAllowance.basis === 'budget'
+                        ? 'según tu presupuesto variable'
+                        : 'según tu saldo disponible'}
+                    </span>
+                  </p>
+                ) : (
+                  <p className="font-medium text-ink">Sin margen diario por ahora.</p>
+                )
+              ) : null}
+              <details>
+                <summary className="cursor-pointer select-none">¿Cómo se calcula?</summary>
+                <p className="mt-1">
+                  Saldo real <Money cents={availableCents} /> − fijos pendientes{' '}
+                  <Money cents={pendingFixedCents} /> − ahorro pendiente{' '}
+                  <Money cents={remainingSavingsCents} />
+                </p>
+              </details>
+            </div>
           }
         >
           <Money cents={spendableCents} />

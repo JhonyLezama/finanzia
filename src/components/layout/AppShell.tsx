@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Link, Outlet } from 'react-router';
 import { OfflineBanner } from '@/components/feedback/OfflineBanner';
+import { FloatingCalculator } from '@/features/calculator/FloatingCalculator';
 import { BottomNav } from './BottomNav';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
@@ -64,6 +65,7 @@ export function AppShell() {
       ) : null}
 
       {isDesktop ? null : <BottomNav />}
+      <FloatingCalculator />
     </div>
   );
 }
