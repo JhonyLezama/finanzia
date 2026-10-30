@@ -48,6 +48,24 @@ async function assertUniqueName(
   }
 }
 
+async function isCategoryUsed(id: string): Promise<boolean> {
+  const [transactionCount, planItems, rules, plans] = await Promise.all([
+    db.transactions.where('categoryId').equals(id).count(),
+    db.planItems.toArray(),
+    db.recurringRules.toArray(),
+    db.plans.toArray(),
+  ]);
+
+  return (
+    transactionCount > 0 ||
+    planItems.some((item) => item.categoryId === id) ||
+    rules.some((rule) => rule.categoryId === id) ||
+    plans.some((plan) =>
+      plan.variableBudgets.some((budget) => budget.categoryId === id),
+    )
+  );
+}
+
 export const categoryRepo = {
   async list(options: ListCategoriesOptions = {}): Promise<Category[]> {
     const categories = await db.categories.orderBy('order').toArray();
@@ -100,42 +118,70 @@ export const categoryRepo = {
   },
 
   async update(id: string, patch: CategoryPatch, ctx?: Ctx): Promise<Category> {
-    return db.transaction('rw', db.categories, db.auditLog, async () => {
-      const current = await db.categories.get(id);
-      if (!current) {
-        throw new Error('La categoría no existe.');
-      }
-      if (ctx?.expectedUpdatedAt && current.updatedAt !== ctx.expectedUpdatedAt) {
-        throw new ConflictError();
-      }
+    return db.transaction(
+      'rw',
+      [
+        db.categories,
+        db.transactions,
+        db.planItems,
+        db.recurringRules,
+        db.plans,
+        db.auditLog,
+      ],
+      async () => {
+        const current = await db.categories.get(id);
+        if (!current) {
+          throw new Error('La categoría no existe.');
+        }
+        if (ctx?.expectedUpdatedAt && current.updatedAt !== ctx.expectedUpdatedAt) {
+          throw new ConflictError();
+        }
 
-      const name = patch.name?.trim() ?? current.name;
-      if (name !== current.name) {
-        await assertUniqueName(name, current.kind, id);
-      }
+        const name = patch.name?.trim() ?? current.name;
+        if (name !== current.name) {
+          await assertUniqueName(name, current.kind, id);
+        }
 
-      const candidate = categorySchema.parse({
-        ...current,
-        ...patch,
-        name,
-        id: current.id,
-        kind: current.kind,
-        createdAt: current.createdAt,
-        updatedAt: nextTimestamp(current.updatedAt),
-      }) as Category;
+        const groupChanged = patch.group !== undefined && patch.group !== current.group;
+        if (groupChanged) {
+          const validGroup =
+            current.kind === 'income'
+              ? patch.group === 'income'
+              : patch.group === 'fixed' || patch.group === 'variable';
 
-      await db.categories.put(candidate);
-      await auditRepo.log({
-        action: 'update',
-        entity: 'category',
-        entityId: candidate.id,
-        summary: `Categoría actualizada: ${candidate.name}`,
-        before: current,
-        after: candidate,
-      });
+          if (!validGroup) {
+            throw new Error('El grupo no corresponde al tipo de la categoría.');
+          }
+          if (await isCategoryUsed(id)) {
+            throw new Error(
+              'No se puede cambiar el grupo de una categoría en uso; creá una categoría nueva.',
+            );
+          }
+        }
 
-      return candidate;
-    });
+        const candidate = categorySchema.parse({
+          ...current,
+          ...patch,
+          name,
+          id: current.id,
+          kind: current.kind,
+          createdAt: current.createdAt,
+          updatedAt: nextTimestamp(current.updatedAt),
+        }) as Category;
+
+        await db.categories.put(candidate);
+        await auditRepo.log({
+          action: 'update',
+          entity: 'category',
+          entityId: candidate.id,
+          summary: `Categoría actualizada: ${candidate.name}`,
+          before: current,
+          after: candidate,
+        });
+
+        return candidate;
+      },
+    );
   },
 
   async archive(id: string): Promise<void> {
@@ -164,6 +210,77 @@ export const categoryRepo = {
         after: archived,
       });
     });
+  },
+
+  async unarchive(id: string): Promise<Category> {
+    return db.transaction('rw', db.categories, db.auditLog, async () => {
+      const current = await db.categories.get(id);
+      if (!current) {
+        throw new Error('La categoría no existe.');
+      }
+      if (current.archived === 0) {
+        return current;
+      }
+
+      await assertUniqueName(current.name, current.kind, id);
+
+      const restored: Category = {
+        ...current,
+        archived: 0,
+        updatedAt: nextTimestamp(current.updatedAt),
+      };
+
+      await db.categories.put(restored);
+      await auditRepo.log({
+        action: 'restore',
+        entity: 'category',
+        entityId: restored.id,
+        summary: `Categoría restaurada: ${restored.name}`,
+        before: current,
+        after: restored,
+      });
+
+      return restored;
+    });
+  },
+
+  async remove(id: string): Promise<void> {
+    await db.transaction(
+      'rw',
+      [
+        db.categories,
+        db.transactions,
+        db.planItems,
+        db.recurringRules,
+        db.plans,
+        db.auditLog,
+      ],
+      async () => {
+        const current = await db.categories.get(id);
+        if (!current) {
+          throw new Error('La categoría no existe.');
+        }
+        if (current.isDefault === 1) {
+          throw new Error(
+            'Las categorías por defecto no se pueden borrar; archivalas en su lugar.',
+          );
+        }
+        if (await isCategoryUsed(id)) {
+          throw new Error(
+            'La categoría tiene movimientos o está en uso; archivala para conservar el historial.',
+          );
+        }
+
+        await db.categories.delete(id);
+        await auditRepo.log({
+          action: 'delete',
+          entity: 'category',
+          entityId: id,
+          summary: `Categoría eliminada: ${current.name}`,
+          before: current,
+        });
+      },
+    );
   },
 
   async ensureDefaults(): Promise<void> {

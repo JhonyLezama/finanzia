@@ -16,10 +16,10 @@ export function Header() {
           <button
             type="button"
             disabled
-            aria-label="Cambiar mes (próximamente)"
             className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-control)] border border-line bg-surface px-3 text-sm text-ink-muted"
           >
             <CalendarDays className="size-4" aria-hidden="true" />
+            <span className="sr-only">Cambiar mes (próximamente): </span>
             <span className="capitalize">{monthLabel}</span>
           </button>
           <Link

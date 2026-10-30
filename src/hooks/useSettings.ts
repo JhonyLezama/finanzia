@@ -124,6 +124,36 @@ export function useSettings() {
     return [...ids];
   }, []);
 
+  const usedCategoryIds = useLiveQuery(async () => {
+    const [transactions, planItems, rules, plans] = await Promise.all([
+      db.transactions.toArray(),
+      db.planItems.toArray(),
+      db.recurringRules.toArray(),
+      db.plans.toArray(),
+    ]);
+
+    const ids = new Set<string>();
+
+    for (const transaction of transactions) {
+      if (transaction.categoryId) {
+        ids.add(transaction.categoryId);
+      }
+    }
+    for (const item of planItems) {
+      ids.add(item.categoryId);
+    }
+    for (const rule of rules) {
+      ids.add(rule.categoryId);
+    }
+    for (const plan of plans) {
+      for (const budget of plan.variableBudgets) {
+        ids.add(budget.categoryId);
+      }
+    }
+
+    return [...ids];
+  }, []);
+
   return {
     settings,
     theme,
@@ -134,5 +164,6 @@ export function useSettings() {
     requestPersistence,
     resetAll,
     blockingCategoryIds: blockingCategoryIds ?? [],
+    usedCategoryIds: usedCategoryIds ?? [],
   };
 }

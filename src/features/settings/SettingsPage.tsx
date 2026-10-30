@@ -36,6 +36,7 @@ export default function SettingsPage() {
     requestPersistence,
     resetAll,
     blockingCategoryIds,
+    usedCategoryIds,
   } = useSettings();
   const [section, setSection] = useState<SectionId>('perfil');
 
@@ -104,11 +105,21 @@ export default function SettingsPage() {
         <CategoriesSection
           categories={categories}
           blockingIds={blockingCategoryIds}
+          usedIds={usedCategoryIds}
           onCreate={async (input) => {
             await categoryRepo.create(input);
           }}
+          onUpdate={async (id, input) => {
+            await categoryRepo.update(id, input);
+          }}
           onArchive={async (id) => {
             await categoryRepo.archive(id);
+          }}
+          onRestore={async (id) => {
+            await categoryRepo.unarchive(id);
+          }}
+          onDelete={async (id) => {
+            await categoryRepo.remove(id);
           }}
         />
       ) : null}

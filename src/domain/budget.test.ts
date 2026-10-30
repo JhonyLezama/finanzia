@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { asCents } from './money';
-import type { ISODate, MonthlyPlan, Transaction } from './models';
-import { computeBudgetSnapshot, computeSavingsRate, computeVariance } from './budget';
+import type { ISODate, MonthKey, MonthlyPlan, Transaction } from './models';
+import {
+  computeBalanceAtMonthEnd,
+  computeBudgetSnapshot,
+  computeSavingsRate,
+  computeVariance,
+} from './budget';
 import { fixtureOctober2026, fixtureTransactions } from '@/test/fixtures/october-2026';
 
 describe('computeBudgetSnapshot', () => {
@@ -128,6 +133,26 @@ describe('computeSavingsRate', () => {
 
   it('returns null without income', () => {
     expect(computeSavingsRate(asCents(0), asCents(1000))).toBeNull();
+  });
+});
+
+describe('computeBalanceAtMonthEnd', () => {
+  it('sums movements up to the last day of the month', () => {
+    const transactions = fixtureTransactions();
+
+    expect(computeBalanceAtMonthEnd(transactions, '2026-10' as MonthKey)).toBe(227000);
+    expect(computeBalanceAtMonthEnd(transactions, '2026-09' as MonthKey)).toBe(90000);
+    expect(computeBalanceAtMonthEnd(transactions, '2026-11' as MonthKey)).toBe(227000);
+  });
+
+  it('ignores deleted movements', () => {
+    const transactions = fixtureTransactions().map((transaction) =>
+      transaction.id === 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'
+        ? { ...transaction, deleted: 1 as const }
+        : transaction,
+    );
+
+    expect(computeBalanceAtMonthEnd(transactions, '2026-10' as MonthKey)).toBe(252000);
   });
 });
 

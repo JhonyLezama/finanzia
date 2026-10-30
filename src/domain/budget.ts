@@ -1,4 +1,4 @@
-import { isDateInMonth } from './dates';
+import { isDateInMonth, monthRange } from './dates';
 import type { Category, Cents, MonthlyPlan, MonthKey, PlanItem, Transaction } from './models';
 
 export interface BudgetSnapshot {
@@ -165,4 +165,16 @@ export function computeSavingsRate(incomeCents: Cents, expenseCents: Cents): num
     return null;
   }
   return (incomeCents - expenseCents) / incomeCents;
+}
+
+export function computeBalanceAtMonthEnd(
+  transactions: Transaction[],
+  month: MonthKey,
+): Cents {
+  const { end } = monthRange(month);
+  const total = transactions
+    .filter((transaction) => !transaction.deleted && transaction.date <= end)
+    .reduce((sum, transaction) => sum + signedAmount(transaction), 0);
+
+  return toCents(total);
 }

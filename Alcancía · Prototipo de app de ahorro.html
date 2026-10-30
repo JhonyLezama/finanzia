@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alcancía · Prototipo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+:root{--bg:#EEF3F0;--card:#FFFFFF;--ink:#13302A;--mute:#5D7770;--line:#D5E1DB;--main:#1C6B58;--gold:#F0B431;--red:#D2455B;--onmain:#FFFFFF;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1815;--card:#15251F;--ink:#E6F2EC;--mute:#8EA8A0;--line:#264037;--main:#4BC3A1;--gold:#F0B431;--red:#F0768A;--onmain:#07201A;color-scheme:dark}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.45 "DM Sans",system-ui,sans-serif;display:flex;justify-content:center}
+#app{width:100%;max-width:430px;height:100%;display:flex;flex-direction:column;background:var(--bg)}
+main{flex:1;overflow-y:auto;padding:18px 18px 24px}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+h1{font-size:26px;font-weight:800}
+h2{font-size:19px;font-weight:800;margin-bottom:10px}
+h3{font-size:16px;font-weight:600}
+.mute{color:var(--mute);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+.big{font:800 38px/1.1 "Bricolage Grotesque",sans-serif}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px}
+.bar>i{display:block;height:100%;background:var(--main);border-radius:6px;transition:width .5s}
+.bar.warn>i{background:var(--gold)}.bar.bad>i{background:var(--red)}
+nav{display:flex;border-top:1px solid var(--line);background:var(--card);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{flex:1;border:0;background:none;color:var(--mute);font:500 13px "DM Sans",sans-serif;padding:10px 0;border-radius:12px;cursor:pointer}
+nav button[aria-current="page"]{color:var(--main);font-weight:700;background:color-mix(in srgb,var(--main) 12%,transparent)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--main);outline-offset:2px}
+.btn{width:100%;border:0;border-radius:14px;background:var(--main);color:var(--onmain);font:700 15px "DM Sans",sans-serif;padding:13px;cursor:pointer}
+.btn.ghost{background:none;color:var(--main);border:1px solid var(--main)}
+.mini{border:1px solid var(--line);background:none;color:var(--ink);border-radius:10px;padding:6px 10px;font:500 13px "DM Sans",sans-serif;cursor:pointer}
+input,select{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:12px;font:500 16px "DM Sans",sans-serif;margin-bottom:10px}
+.seg{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:3px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:none;color:var(--mute);padding:9px;border-radius:9px;font:700 14px "DM Sans",sans-serif;cursor:pointer}
+.seg button.on{background:var(--main);color:var(--onmain)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chips button{border:1px solid var(--line);background:none;color:var(--ink);border-radius:20px;padding:6px 12px;font:500 13px "DM Sans",sans-serif;cursor:pointer}
+.chips button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tx{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.tx:last-child{border:0}
+.neg{color:var(--red);font-weight:700}.pos{color:var(--main);font-weight:700}
+.jarwrap{display:flex;gap:16px;align-items:center}
+details{border-top:1px solid var(--line);padding:10px 0}
+summary{cursor:pointer;font-weight:700}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-weight:700;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <main id="view" aria-live="polite"></main>
+  <nav id="nav"></nav>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const CATS=['Comida','Transporte','Casa','Ocio','Salud','Otros'];
+const ICATS=['Sueldo','Extra'];
+const TIPS=[
+ ['Paga primero a tu futuro yo','Apenas cobres, separa un porcentaje (aunque sea 10%) y recién después gasta. Lo que no ves, no lo gastas.'],
+ ['La regla de las 24 horas','Si quieres comprar algo que no es necesario, espera un día. Muchas ganas se pasan solas.'],
+ ['Pequeños gastos, gran hueco','Un café o snack diario de S/ 6 son unos S/ 180 al mes. Anótalos para verlos.'],
+ ['Fondo de emergencia','Apunta a guardar el equivalente a 3 meses de gastos básicos. Empieza con tu primera meta pequeña.']
+];
+const seed=()=>({budget:1500,tx:[
+ {id:1,t:'i',a:2200,c:'Sueldo',n:'Pago del mes',d:Date.now()-864e5*6},
+ {id:2,t:'g',a:380,c:'Casa',n:'Servicios',d:Date.now()-864e5*5},
+ {id:3,t:'g',a:46.5,c:'Comida',n:'Almuerzos',d:Date.now()-864e5*3},
+ {id:4,t:'g',a:18,c:'Transporte',n:'Taxi',d:Date.now()-864e5*2},
+ {id:5,t:'g',a:60,c:'Ocio',n:'Cine',d:Date.now()-864e5}],
+ goals:[{id:1,n:'Fondo de emergencia',t:1000,s:250},{id:2,n:'Viaje a Cusco',t:800,s:120}],
+ learned:[],streak:2,doneToday:false});
+let S;try{S=JSON.parse(localStorage.getItem('alc1'))||seed()}catch(e){S=seed()}
+const save=()=>{try{localStorage.setItem('alc1',JSON.stringify(S))}catch(e){}};
+let tab='inicio',form={t:'g',c:'Comida'};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const money=n=>'S/ '+Number(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const sum=t=>S.tx.filter(x=>x.t===t).reduce((a,b)=>a+b.a,0);
+const toast=m=>{const e=$('#toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1500)};
+const fdate=d=>new Date(d).toLocaleDateString('es-PE',{day:'numeric',month:'short'});
+
+function jar(p){
+ const h=Math.max(0,Math.min(1,p))*150;
+ return `<svg width="110" height="170" viewBox="0 0 110 170" role="img" aria-label="Frasco de ahorro lleno al ${Math.round(p*100)}%">
+ <defs><clipPath id="jc"><path d="M22 28h66v10c10 6 14 16 14 28v78a14 14 0 0 1-14 14H22a14 14 0 0 1-14-14V66c0-12 4-22 14-28z"/></clipPath></defs>
+ <g clip-path="url(#jc)"><rect x="0" y="${164-h}" width="110" height="${h}" fill="var(--gold)" style="transition:all .6s"/>
+ ${h>20?`<circle cx="35" cy="${164-h+14}" r="7" fill="#fff" opacity=".45"/><circle cx="68" cy="${164-h+26}" r="9" fill="#fff" opacity=".35"/>`:''}</g>
+ <path d="M22 28h66v10c10 6 14 16 14 28v78a14 14 0 0 1-14 14H22a14 14 0 0 1-14-14V66c0-12 4-22 14-28z" fill="none" stroke="var(--ink)" stroke-width="3"/>
+ <rect x="18" y="14" width="74" height="14" rx="5" fill="var(--ink)"/></svg>`;
+}
+
+function home(){
+ const g=sum('g'),i=sum('i'),bal=i-g,pct=g/S.budget;
+ const tot=S.goals.reduce((a,b)=>a+b.t,0),sv=S.goals.reduce((a,b)=>a+b.s,0);
+ const by={};S.tx.filter(x=>x.t==='g').forEach(x=>by[x.c]=(by[x.c]||0)+x.a);
+ const top=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,4);
+ const cls=pct>1?'bad':pct>.8?'warn':'';
+ const msg=pct>1?'Superaste tu presupuesto. Revisa los gastos de Ocio y Comida.':pct>.8?'Cuidado: ya usaste más del 80% de tu presupuesto.':'Vas bien con tu presupuesto este mes.';
+ return `<h1>Hola, ahorrador</h1><p class="mute" style="margin:2px 0 16px">Así va tu dinero este mes</p>
+ <div class="card"><div class="mute">Disponible</div><div class="big">${money(bal)}</div>
+ <div class="row mute" style="margin-top:6px"><span>Ingresos ${money(i)}</span><span>Gastos ${money(g)}</span></div></div>
+ <div class="card"><div class="row"><h3>Presupuesto del mes</h3><span class="mute">${money(g)} de ${money(S.budget)}</span></div>
+ <div class="bar ${cls}"><i style="width:${Math.min(100,pct*100)}%"></i></div><p class="mute" style="margin:8px 0 0">${msg}</p></div>
+ <div class="card jarwrap">${jar(tot?sv/tot:0)}<div><h3>Tu frasco de ahorro</h3><div class="big" style="font-size:26px;margin:4px 0">${money(sv)}</div>
+ <div class="mute">${Math.round((tot?sv/tot:0)*100)}% de tus metas</div><button class="mini" style="margin-top:10px" data-go="metas">Ver metas</button></div></div>
+ <div class="card"><h3 style="margin-bottom:6px">En qué gastas más</h3>${top.length?top.map(([c,v])=>`<div style="margin-top:10px"><div class="row"><span>${c}</span><span class="mute">${money(v)}</span></div><div class="bar"><i style="width:${v/g*100}%"></i></div></div>`).join(''):'<p class="mute">Aún no hay gastos. Registra el primero en la pestaña Gastos.</p>'}</div>`;
+}
+
+function gastos(){
+ const cs=form.t==='g'?CATS:ICATS;
+ const list=[...S.tx].sort((a,b)=>b.d-a.d).map(x=>`<div class="tx"><div><div>${esc(x.n||x.c)}</div><div class="mute">${x.c} · ${fdate(x.d)}</div></div>
+ <div style="display:flex;gap:8px;align-items:center"><span class="${x.t==='g'?'neg':'pos'}">${x.t==='g'?'−':'+'}${money(x.a)}</span><button class="mini" data-del="${x.id}" aria-label="Borrar">✕</button></div></div>`).join('');
+ return `<h1>Movimientos</h1><p class="mute" style="margin:2px 0 14px">Anota cada sol que entra o sale</p>
+ <div class="card"><div class="seg"><button data-type="g" class="${form.t==='g'?'on':''}">Gasto</button><button data-type="i" class="${form.t==='i'?'on':''}">Ingreso</button></div>
+ <input id="amt" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Monto en soles" aria-label="Monto">
+ <div class="chips">${cs.map(c=>`<button data-cat="${c}" class="${form.c===c?'on':''}">${c}</button>`).join('')}</div>
+ <input id="note" type="text" maxlength="40" placeholder="Nota (opcional)" aria-label="Nota">
+ <button class="btn" data-act="addtx">Guardar ${form.t==='g'?'gasto':'ingreso'}</button></div>
+ <div class="card"><h3 style="margin-bottom:4px">Historial</h3>${list||'<p class="mute">Sin movimientos todavía.</p>'}</div>`;
+}
+
+function metas(){
+ return `<h1>Metas de ahorro</h1><p class="mute" style="margin:2px 0 14px">Cada meta llena tu frasco</p>
+ ${S.goals.map(g=>{const p=Math.min(100,g.s/g.t*100);return `<div class="card"><div class="row"><h3>${esc(g.n)}</h3><button class="mini" data-gdel="${g.id}" aria-label="Borrar meta">✕</button></div>
+ <div class="mute">${money(g.s)} de ${money(g.t)}${p>=100?' · ¡Meta cumplida!':''}</div><div class="bar"><i style="width:${p}%"></i></div>
+ <div class="row" style="margin-top:12px;justify-content:flex-start">${[10,50,100].map(v=>`<button class="mini" data-gadd="${g.id}:${v}">+ S/ ${v}</button>`).join('')}</div></div>`}).join('')||'<p class="mute">Crea tu primera meta: algo concreto te motiva más que ahorrar “por ahorrar”.</p>'}
+ <div class="card"><h3 style="margin-bottom:10px">Nueva meta</h3><input id="gn" type="text" maxlength="30" placeholder="Ej: Laptop nueva" aria-label="Nombre de la meta">
+ <input id="gt" type="number" inputmode="decimal" min="1" placeholder="Monto objetivo en soles" aria-label="Monto objetivo"><button class="btn" data-act="addgoal">Crear meta</button></div>`;
+}
+
+function aprender(){
+ return `<h1>Aprende a ahorrar</h1><p class="mute" style="margin:2px 0 14px">Un hábito pequeño al día</p>
+ <div class="card" style="border-color:var(--gold)"><div class="row"><h3>Reto de hoy</h3><span class="mute">Racha: ${S.streak} días</span></div>
+ <p style="margin:8px 0 12px">No compres nada por impulso hoy. Si algo te tienta, anótalo y decide mañana.</p>
+ <button class="btn ${S.doneToday?'ghost':''}" data-act="challenge" ${S.doneToday?'disabled':''}>${S.doneToday?'Reto cumplido hoy':'Lo cumplí'}</button></div>
+ <div class="card"><div class="row"><h3>Mini lecciones</h3><span class="mute">${S.learned.length} de ${TIPS.length}</span></div>
+ <div class="bar"><i style="width:${S.learned.length/TIPS.length*100}%"></i></div>
+ ${TIPS.map((t,i)=>`<details style="margin-top:${i?0:10}px"><summary>${S.learned.includes(i)?'✓ ':''}${t[0]}</summary><p style="margin:8px 0">${t[1]}</p>
+ <button class="mini" data-learn="${i}">${S.learned.includes(i)?'Marcada como aprendida':'Marcar como aprendida'}</button></details>`).join('')}</div>
+ <button class="btn ghost" data-act="reset">Reiniciar datos de ejemplo</button>`;
+}
+
+const views={inicio:home,gastos,metas,aprender};
+const names={inicio:'Inicio',gastos:'Gastos',metas:'Metas',aprender:'Aprender'};
+function render(keepScroll){
+ const m=$('#view'),y=m.scrollTop;m.innerHTML=views[tab]();m.scrollTop=keepScroll?y:0;
+ $('#nav').innerHTML=Object.keys(names).map(k=>`<button data-go="${k}" ${k===tab?'aria-current="page"':''}>${names[k]}</button>`).join('');
+}
+
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+ if(d.go){tab=d.go;return render()}
+ if(d.type){form={t:d.type,c:d.type==='g'?CATS[0]:ICATS[0]};return render(1)}
+ if(d.cat){form.c=d.cat;const a=$('#amt').value,n=$('#note').value;render(1);$('#amt').value=a;$('#note').value=n;return}
+ if(d.del){S.tx=S.tx.filter(x=>x.id!=d.del);save();return render(1)}
+ if(d.gdel){S.goals=S.goals.filter(x=>x.id!=d.gdel);save();return render(1)}
+ if(d.gadd){const[id,v]=d.gadd.split(':');const g=S.goals.find(x=>x.id==id);g.s=Math.min(g.t,g.s+Number(v));save();toast('Ahorraste S/ '+v);return render(1)}
+ if(d.learn){const i=+d.learn;if(!S.learned.includes(i)){S.learned.push(i);toast('¡Lección aprendida!')}save();return render(1)}
+ if(d.act==='addtx'){
+  const a=parseFloat($('#amt').value);
+  if(!(a>0)){$('#amt').focus();return toast('Escribe un monto mayor a 0')}
+  S.tx.push({id:Date.now(),t:form.t,a,c:form.c,n:$('#note').value.trim(),d:Date.now()});save();toast('Guardado');return render(1)}
+ if(d.act==='addgoal'){
+  const n=$('#gn').value.trim(),t=parseFloat($('#gt').value);
+  if(!n||!(t>0))return toast('Completa nombre y monto');
+  S.goals.push({id:Date.now(),n,t,s:0});save();toast('Meta creada');return render(1)}
+ if(d.act==='challenge'){S.doneToday=true;S.streak++;save();toast('¡Racha de '+S.streak+' días!');return render(1)}
+ if(d.act==='reset'){S=seed();save();toast('Datos reiniciados');return render()}
+});
+render();
+</script>
+</body>
+</html>
