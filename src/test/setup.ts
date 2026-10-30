@@ -12,3 +12,11 @@ if (typeof Element !== 'undefined') {
   Element.prototype.releasePointerCapture ??= () => {};
   Element.prototype.hasPointerCapture ??= () => false;
 }
+
+if (typeof window !== 'undefined') {
+  window.ResizeObserver ??= class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}

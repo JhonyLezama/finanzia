@@ -250,3 +250,66 @@ export function buildCategoryBreakdown(input: ReportInput): CategoryBreakdownRow
     share: grandTotal > 0 ? row.amountCents / grandTotal : 0,
   }));
 }
+
+export type CsvInput =
+  | ReportInput
+  | { transactions: Transaction[]; categories?: Category[] }
+  | Transaction[];
+
+const TYPE_LABELS: Record<Transaction['type'], string> = {
+  expense: 'gasto',
+  income: 'ingreso',
+  goal_deposit: 'aporte_meta',
+  goal_withdraw: 'retiro_meta',
+  opening: 'saldo_inicial',
+};
+
+function escapeCsv(val: unknown): string {
+  if (val == null) return '';
+  const str = String(val);
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+export function buildTransactionsCsv(input: CsvInput): Blob {
+  const transactions: Transaction[] = Array.isArray(input)
+    ? input
+    : input.transactions;
+
+  const categories: Category[] = Array.isArray(input) ? [] : (input.categories ?? []);
+  const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
+
+  const headers = ['fecha', 'descripcion', 'categoria', 'tipo', 'monto', 'moneda', 'origen', 'nota'];
+
+  const rows = transactions
+    .filter((t) => !t.deleted)
+    .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt))
+    .map((t) => {
+      const categoryName = t.categoryId ? (categoryMap.get(t.categoryId) ?? '') : '';
+      const tipo = TYPE_LABELS[t.type] ?? t.type;
+      const monto = (t.amountCents / 100).toFixed(2);
+      const moneda = t.currency || 'PEN';
+      const origen = t.source || 'manual';
+      const nota = t.note || '';
+
+      return [
+        t.date,
+        escapeCsv(t.description),
+        escapeCsv(categoryName),
+        escapeCsv(tipo),
+        monto,
+        moneda,
+        escapeCsv(origen),
+        escapeCsv(nota),
+      ].join(',');
+    });
+
+  const text = [headers.join(','), ...rows].join('\n');
+  const body = new TextEncoder().encode(text);
+  const bytes = new Uint8Array(3 + body.length);
+  bytes.set([0xef, 0xbb, 0xbf]);
+  bytes.set(body, 3);
+  return new Blob([bytes], { type: 'text/csv;charset=utf-8;' });
+}
