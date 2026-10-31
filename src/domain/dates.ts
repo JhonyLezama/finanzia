@@ -127,6 +127,12 @@ export function isDateInMonth(date: ISODate, key: MonthKey): boolean {
   return date.startsWith(`${key}-`);
 }
 
+export function addDays(date: ISODate, days: number): ISODate {
+  const [year, month, day] = date.split('-').map(Number) as [number, number, number];
+  const next = new Date(Date.UTC(year, month - 1, day + days));
+  return next.toISOString().slice(0, 10) as ISODate;
+}
+
 export function monthsBetween(start: MonthKey, end: MonthKey): MonthKey[] {
   if (start > end) {
     return [];

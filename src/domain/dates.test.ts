@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ISODate, MonthKey } from './models';
 import {
+  addDays,
   addMonths,
   dueDateForMonth,
   formatDateShort,
@@ -82,5 +83,15 @@ describe('calendar dates', () => {
   it('formats months and short dates in Spanish', () => {
     expect(formatMonthLong('2026-10' as MonthKey)).toBe('Octubre de 2026');
     expect(formatDateShort('2026-10-05' as ISODate)).toBe('5 oct 2026');
+  });
+});
+
+describe('addDays', () => {
+  it('adds days across a month boundary', () => {
+    expect(addDays('2026-10-30' as ISODate, 2)).toBe('2026-11-01');
+  });
+
+  it('subtracts days across a year boundary', () => {
+    expect(addDays('2026-01-01' as ISODate, -1)).toBe('2025-12-31');
   });
 });

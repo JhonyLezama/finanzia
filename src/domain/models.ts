@@ -128,6 +128,13 @@ export interface RecurringRule {
   updatedAt: ISOTimestamp;
 }
 
+export interface ReminderState {
+  planItemId: UUID;
+  snoozedUntil?: ISODate;
+  hiddenAt?: ISOTimestamp;
+  updatedAt: ISOTimestamp;
+}
+
 export interface Goal {
   id: UUID;
   name: string;
