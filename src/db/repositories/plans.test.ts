@@ -12,6 +12,8 @@ import { resetDb } from '../test-utils';
 import { auditRepo } from './audit';
 import { categoryRepo } from './categories';
 import { planRepo } from './plans';
+import { addMonths, currentMonth, todayInLima } from '@/domain/dates';
+import { reminderStateRepo } from './reminder-states';
 import { transactionRepo } from './transactions';
 
 const timestamp = '2026-01-01T00:00:00.000Z' as ISOTimestamp;
@@ -424,5 +426,100 @@ describe('planRepo.close', () => {
         source: 'manual',
       }),
     ).rejects.toThrow(/cerrado/i);
+  });
+});
+
+describe('planRepo.createItem', () => {
+  it('creates a pending one-off fixed expense in the current month', async () => {
+    const item = await planRepo.createItem({
+      name: 'Cena especial',
+      amountCents: asCents(15000),
+      categoryId: comida.id,
+      dueDate: todayInLima(),
+    });
+
+    expect(item).toMatchObject({
+      name: 'Cena especial',
+      kind: 'fixed_expense',
+      status: 'pending',
+      dueDate: todayInLima(),
+      planId: currentMonth(),
+    });
+    expect(item.recurringRuleId).toBeUndefined();
+    expect(await db.plans.get(currentMonth())).toBeTruthy();
+  });
+
+  it('rejects a date before the current month', async () => {
+    const previous = addMonths(currentMonth(), -1);
+    await expect(
+      planRepo.createItem({
+        name: 'Viejo',
+        amountCents: asCents(10000),
+        categoryId: comida.id,
+        dueDate: `${previous}-01` as ISODate,
+      }),
+    ).rejects.toThrow(/anterior al mes actual/i);
+  });
+
+  it('rejects a closed month', async () => {
+    await planRepo.getOrCreate(currentMonth());
+    await db.plans.update(currentMonth(), { status: 'closed' });
+
+    await expect(
+      planRepo.createItem({
+        name: 'Cerrado',
+        amountCents: asCents(10000),
+        categoryId: comida.id,
+        dueDate: todayInLima(),
+      }),
+    ).rejects.toThrow(/cerrado/i);
+  });
+
+  it('rejects an income category', async () => {
+    await expect(
+      planRepo.createItem({
+        name: 'Sueldo',
+        amountCents: asCents(10000),
+        categoryId: sueldo.id,
+        dueDate: todayInLima(),
+      }),
+    ).rejects.toThrow(/gasto/i);
+  });
+});
+
+describe('one-off payments', () => {
+  it('records a manual source and clears reminder state', async () => {
+    const item = await planRepo.createItem({
+      name: 'Cena especial',
+      amountCents: asCents(15000),
+      categoryId: comida.id,
+      dueDate: todayInLima(),
+    });
+    await reminderStateRepo.hide(item.id);
+
+    const { transaction } = await planRepo.payItem(
+      item.id,
+      { amountCents: item.amountCents, date: todayInLima() },
+      { expectedUpdatedAt: item.updatedAt },
+    );
+
+    expect(transaction.source).toBe('manual');
+    expect(await reminderStateRepo.list()).toEqual([]);
+  });
+
+  it('clears reminder state when an item is skipped', async () => {
+    const item = await planRepo.createItem({
+      name: 'Cena especial',
+      amountCents: asCents(15000),
+      categoryId: comida.id,
+      dueDate: todayInLima(),
+    });
+    await reminderStateRepo.snooze(
+      item.id,
+      todayInLima(new Date(Date.now() + 86_400_000)),
+    );
+
+    await planRepo.skipItem(item.id, { expectedUpdatedAt: item.updatedAt });
+    expect(await reminderStateRepo.list()).toEqual([]);
   });
 });

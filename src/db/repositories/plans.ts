@@ -1,5 +1,5 @@
 import { computeBudgetSnapshot } from '@/domain/budget';
-import { addMonths, parseMonthKey, todayInLima, toMonthKey } from '@/domain/dates';
+import { addMonths, currentMonth, monthRange, parseMonthKey, todayInLima, toMonthKey } from '@/domain/dates';
 import type {
   Cents,
   ISODate,
@@ -22,6 +22,14 @@ export interface PayItemInput {
   description?: string;
 }
 
+export interface CreatePlanItemInput {
+  name: string;
+  amountCents: Cents;
+  categoryId: UUID;
+  dueDate: ISODate;
+  note?: string;
+}
+
 const PLAN_TABLES = [
   db.plans,
   db.planItems,
@@ -30,6 +38,7 @@ const PLAN_TABLES = [
   db.categories,
   db.goals,
   db.auditLog,
+  db.reminderStates,
 ] as const;
 
 function withoutUndefined<T extends object>(value: T): Partial<T> {
@@ -87,7 +96,7 @@ async function settleItem(
       categoryId: item.categoryId,
       description: input.description?.trim() || item.name,
       planItemId: item.id,
-      source: 'recurring',
+      source: item.recurringRuleId ? 'recurring' : 'manual',
     });
 
     const updated: PlanItem = {
@@ -97,6 +106,7 @@ async function settleItem(
       updatedAt: nextTimestamp(item.updatedAt),
     };
     await db.planItems.put(updated);
+    await db.reminderStates.delete(item.id);
 
     await auditRepo.log({
       action: 'update',
@@ -112,6 +122,66 @@ async function settleItem(
 }
 
 export const planRepo = {
+  async createItem(input: CreatePlanItemInput): Promise<PlanItem> {
+    const month = toMonthKey(input.dueDate);
+    const startOfMonth = monthRange(currentMonth()).start;
+    const name = input.name.trim();
+
+    if (!name) {
+      throw new Error('El nombre es obligatorio.');
+    }
+    if (input.dueDate < startOfMonth) {
+      throw new Error('La fecha no puede ser anterior al mes actual.');
+    }
+
+    const category = await db.categories.get(input.categoryId);
+    if (!category || category.kind !== 'expense' || category.archived === 1) {
+      throw new Error('Elegí una categoría de gasto activa.');
+    }
+
+    await planRepo.getOrCreate(month);
+
+    return db.transaction(
+      'rw',
+      [db.plans, db.planItems, db.categories, db.auditLog],
+      async () => {
+        const plan = await db.plans.get(month);
+        if (!plan) {
+          throw new Error('El plan no existe.');
+        }
+        if (plan.status === 'closed') {
+          throw new Error('El mes está cerrado y no admite cambios.');
+        }
+
+        const now = nowTimestamp();
+        const item = planItemSchema.parse({
+          id: crypto.randomUUID(),
+          planId: month,
+          kind: 'fixed_expense',
+          name,
+          categoryId: input.categoryId,
+          amountCents: input.amountCents,
+          dueDate: input.dueDate,
+          status: 'pending',
+          note: input.note?.trim() || undefined,
+          createdAt: now,
+          updatedAt: now,
+        }) as PlanItem;
+
+        await db.planItems.add(item);
+        await auditRepo.log({
+          action: 'create',
+          entity: 'plan_item',
+          entityId: item.id,
+          summary: `Compromiso creado: ${item.name}`,
+          after: item,
+        });
+
+        return item;
+      },
+    );
+  },
+
   async getOrCreate(month: MonthKey): Promise<MonthlyPlan> {
     const parsed = parseMonthKey(month);
 
@@ -271,7 +341,7 @@ export const planRepo = {
   },
 
   async skipItem(itemId: UUID, ctx: Ctx): Promise<PlanItem> {
-    return db.transaction('rw', [db.planItems, db.auditLog], async () => {
+    return db.transaction('rw', [db.planItems, db.auditLog, db.reminderStates], async () => {
       const item = await db.planItems.get(itemId);
       if (!item) {
         throw new Error('El compromiso no existe.');
@@ -293,6 +363,7 @@ export const planRepo = {
       };
 
       await db.planItems.put(skipped);
+      await db.reminderStates.delete(itemId);
       await auditRepo.log({
         action: 'update',
         entity: 'plan_item',
