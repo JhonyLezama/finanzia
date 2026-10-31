@@ -159,13 +159,11 @@ export function computeBudgetSnapshot({
 
 export function computeVariance(
   actualCents: Cents,
-  planCents: Cents,
+  plannedCents: Cents,
 ): { varianceCents: number; variancePct: number | null } {
-  const varianceCents = actualCents - planCents;
-  return {
-    varianceCents,
-    variancePct: planCents > 0 ? varianceCents / planCents : null,
-  };
+  const varianceCents = actualCents - plannedCents;
+  const variancePct = plannedCents > 0 ? varianceCents / plannedCents : null;
+  return { varianceCents, variancePct };
 }
 
 export function computeSavingsRate(incomeCents: Cents, expenseCents: Cents): number | null {
@@ -175,15 +173,11 @@ export function computeSavingsRate(incomeCents: Cents, expenseCents: Cents): num
   return (incomeCents - expenseCents) / incomeCents;
 }
 
-export function computeBalanceAtMonthEnd(
-  transactions: Transaction[],
-  month: MonthKey,
-): Cents {
+export function computeBalanceAtMonthEnd(transactions: Transaction[], month: MonthKey): Cents {
   const { end } = monthRange(month);
   const total = transactions
     .filter((transaction) => !transaction.deleted && transaction.date <= end)
     .reduce((sum, transaction) => sum + signedAmount(transaction), 0);
-
   return toCents(total);
 }
 
@@ -215,17 +209,30 @@ export function computeDailyAllowance(
     return null;
   }
 
+  const cashRemaining = Math.max(0, snapshot.spendableCents);
   const usesBudget = snapshot.variablePlanCents > 0;
   const budgetRemaining = Math.max(
     0,
     snapshot.variablePlanCents - snapshot.variableExpenseCents,
   );
-  const cashRemaining = Math.max(0, snapshot.spendableCents);
-  const base = usesBudget ? Math.min(budgetRemaining, cashRemaining) : cashRemaining;
+
+  // Si hay presupuesto y no se ha agotado, recomendamos el mínimo entre lo que queda de presupuesto y el efectivo
+  // Si el presupuesto ya se agotó (budgetRemaining === 0) pero el usuario tiene dinero libre en mano (cashRemaining > 0),
+  // nos basamos en el efectivo disponible real para no dejarlo sin margen diario.
+  let base: number;
+  let basis: DailyAllowanceBasis;
+
+  if (usesBudget && budgetRemaining > 0) {
+    base = Math.min(budgetRemaining, cashRemaining);
+    basis = budgetRemaining <= cashRemaining ? 'budget' : 'available';
+  } else {
+    base = cashRemaining;
+    basis = 'available';
+  }
 
   return {
     amountCents: toCents(Math.floor(base / days)),
     days,
-    basis: usesBudget && budgetRemaining <= cashRemaining ? 'budget' : 'available',
+    basis,
   };
 }

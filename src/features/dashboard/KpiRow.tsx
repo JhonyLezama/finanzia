@@ -187,6 +187,7 @@ export function KpiRow({
                     {dailyAllowance.days === 1
                       ? 'Queda 1 día de mes'
                       : `Quedan ${dailyAllowance.days} días de mes`}
+                    {dailyAllowance.basis === 'available' ? ' · calculado sobre tu saldo libre' : ' · según tu plan variable'}
                   </p>
                 </div>
               ) : (
