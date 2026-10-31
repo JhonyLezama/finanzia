@@ -1,5 +1,6 @@
 import { CalendarDays, Settings } from 'lucide-react';
 import { Link } from 'react-router';
+import { ReminderBell } from '@/features/reminders/ReminderBell';
 
 const monthFormatter = new Intl.DateTimeFormat('es-PE', { month: 'long', year: 'numeric' });
 
@@ -16,12 +17,13 @@ export function Header() {
           <button
             type="button"
             disabled
-            className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-control)] border border-line bg-surface px-3 text-sm text-ink-muted"
+            aria-label={`Cambiar mes (próximamente): ${monthLabel}`}
+            className="inline-flex size-11 items-center justify-center rounded-[var(--radius-control)] border border-line bg-surface text-sm text-ink-muted sm:min-h-11 sm:w-auto sm:gap-2 sm:px-3"
           >
             <CalendarDays className="size-4" aria-hidden="true" />
-            <span className="sr-only">Cambiar mes (próximamente): </span>
-            <span className="capitalize">{monthLabel}</span>
+            <span className="hidden capitalize sm:inline">{monthLabel}</span>
           </button>
+          <ReminderBell />
           <Link
             to="/ajustes"
             aria-label="Ajustes"
