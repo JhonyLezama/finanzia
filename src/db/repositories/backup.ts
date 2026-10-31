@@ -15,6 +15,7 @@ const BACKUP_TABLES = [
   db.goals,
   db.importBatches,
   db.auditLog,
+  db.reminderStates,
 ] as const;
 
 export const backupRepo = {
@@ -29,6 +30,7 @@ export const backupRepo = {
       goals,
       importBatches,
       auditLog,
+      reminderStates,
     ] = await Promise.all([
       settingsRepo.get(),
       db.categories.toArray(),
@@ -39,10 +41,11 @@ export const backupRepo = {
       db.goals.toArray(),
       db.importBatches.toArray(),
       db.auditLog.toArray(),
+      db.reminderStates.toArray(),
     ]);
 
     const backup = backupSchema.parse({
-      schemaVersion: 1,
+      schemaVersion: 2,
       appVersion,
       exportedAt: nowTimestamp(),
       data: {
@@ -55,6 +58,7 @@ export const backupRepo = {
         goals,
         importBatches,
         auditLog,
+        reminderStates,
       },
     }) as Backup;
 
@@ -83,6 +87,7 @@ export const backupRepo = {
       if (backup.data.goals.length) await db.goals.bulkPut(backup.data.goals);
       if (backup.data.importBatches.length) await db.importBatches.bulkPut(backup.data.importBatches);
       if (backup.data.auditLog.length) await db.auditLog.bulkPut(backup.data.auditLog);
+      if (backup.data.reminderStates.length) await db.reminderStates.bulkPut(backup.data.reminderStates);
     });
 
     await auditRepo.log({

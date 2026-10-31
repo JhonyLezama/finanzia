@@ -337,7 +337,7 @@ export const reminderStateSchema = z.object({
 });
 
 export const backupSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   appVersion: z.string().min(1),
   exportedAt: timestampSchema,
   data: z.object({
@@ -350,5 +350,6 @@ export const backupSchema = z.object({
     goals: z.array(goalSchema),
     importBatches: z.array(importBatchSchema),
     auditLog: z.array(auditEntrySchema),
+    reminderStates: z.array(reminderStateSchema),
   }),
 });

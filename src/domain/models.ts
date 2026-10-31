@@ -208,10 +208,11 @@ export interface BackupData {
   goals: Goal[];
   importBatches: ImportBatch[];
   auditLog: AuditEntry[];
+  reminderStates: ReminderState[];
 }
 
 export interface Backup {
-  schemaVersion: 1;
+  schemaVersion: 2;
   appVersion: string;
   exportedAt: ISOTimestamp;
   data: BackupData;
