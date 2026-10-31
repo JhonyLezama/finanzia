@@ -37,3 +37,38 @@ test('keeps Movimientos inside the mobile viewport', async ({ page }) => {
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
 });
+
+test('scrolls the settings tabs and keeps the active one visible', async ({ page }) => {
+  await page.goto('/ajustes');
+
+  const nav = page.getByRole('navigation', { name: 'Secciones de ajustes' });
+  await expect(nav).toBeVisible();
+
+  const scrollsHorizontally = await nav.evaluate(
+    (element) => element.scrollWidth > element.clientWidth,
+  );
+  expect(scrollsHorizontally).toBe(true);
+
+  const appTab = page.getByRole('button', { name: 'App', exact: true });
+  await appTab.click();
+  await expect(appTab).toHaveAttribute('aria-pressed', 'true');
+
+  await expect
+    .poll(async () => {
+      const navBox = await nav.boundingBox();
+      const tabBox = await appTab.boundingBox();
+      if (!navBox || !tabBox) {
+        return false;
+      }
+      return (
+        tabBox.x >= navBox.x - 1 &&
+        tabBox.x + tabBox.width <= navBox.x + navBox.width + 1
+      );
+    })
+    .toBe(true);
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+});

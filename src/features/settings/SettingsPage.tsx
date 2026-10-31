@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { categoryRepo } from '@/db/repositories/categories';
 import { recurringRepo } from '@/db/repositories/recurring';
 import { auditRepo } from '@/db/repositories/audit';
@@ -39,6 +39,22 @@ export default function SettingsPage() {
     usedCategoryIds,
   } = useSettings();
   const [section, setSection] = useState<SectionId>('perfil');
+  const tabsRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const nav = tabsRef.current;
+    const active = nav?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (!nav || !active) {
+      return;
+    }
+
+    const left = active.offsetLeft - nav.clientWidth / 2 + active.clientWidth / 2;
+    if (typeof nav.scrollTo === 'function') {
+      nav.scrollTo({ left, behavior: 'smooth' });
+    } else {
+      nav.scrollLeft = left;
+    }
+  }, [section]);
 
   const categories = useLiveQuery(() => categoryRepo.list({ includeArchived: true }), []) ?? [];
   const rules = useLiveQuery(() => recurringRepo.list(), []) ?? [];
@@ -72,23 +88,37 @@ export default function SettingsPage() {
         </p>
       </header>
 
-      <nav aria-label="Secciones de ajustes" className="flex flex-wrap gap-2">
-        {SECTIONS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setSection(item.id)}
-            aria-pressed={section === item.id}
-            className={
-              section === item.id
-                ? 'min-h-11 rounded-full bg-primary px-4 text-sm font-medium text-primary-ink'
-                : 'min-h-11 rounded-full border border-line bg-surface px-4 text-sm text-ink-muted hover:text-ink'
-            }
-          >
-            {item.label}
-          </button>
-        ))}
-      </nav>
+      <div className="relative">
+        <nav
+          ref={tabsRef}
+          aria-label="Secciones de ajustes"
+          className="-mx-4 flex gap-2 overflow-x-auto overscroll-x-contain py-1 pl-4 pr-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:py-0 [&::-webkit-scrollbar]:hidden"
+        >
+          {SECTIONS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setSection(item.id)}
+              aria-pressed={section === item.id}
+              className={
+                section === item.id
+                  ? 'min-h-11 shrink-0 whitespace-nowrap rounded-full bg-primary px-4 text-sm font-medium text-primary-ink'
+                  : 'min-h-11 shrink-0 whitespace-nowrap rounded-full border border-line bg-surface px-4 text-sm text-ink-muted hover:text-ink'
+              }
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-bg to-transparent sm:hidden"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 -right-4 w-4 bg-bg sm:hidden"
+        />
+      </div>
 
       {section === 'perfil' && settings ? (
         <ProfileSection
