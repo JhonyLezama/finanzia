@@ -21,8 +21,12 @@ interface PayItemFormProps {
 }
 
 function PayItemForm({ item, onConfirm, onClose }: PayItemFormProps) {
+  const today = todayInLima();
   const [amount, setAmount] = useState(() => (item.amountCents / 100).toFixed(2));
-  const [date, setDate] = useState<ISODate>(() => item.dueDate || todayInLima());
+  const [date, setDate] = useState<ISODate>(() => {
+    const initial = item.dueDate || today;
+    return initial > today ? today : initial;
+  });
   const [description, setDescription] = useState(() => item.name);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +40,11 @@ function PayItemForm({ item, onConfirm, onClose }: PayItemFormProps) {
       cents = parseAmountInput(amount);
     } catch {
       setError('Ingresá un monto válido.');
+      return;
+    }
+
+    if (date > today) {
+      setError('La fecha no puede ser futura.');
       return;
     }
 
@@ -57,7 +66,7 @@ function PayItemForm({ item, onConfirm, onClose }: PayItemFormProps) {
   const isIncome = item.kind === 'expected_income';
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {error ? (
         <div role="alert" className="rounded-lg border border-red/30 bg-red-soft p-3 text-sm text-red">
           {error}
