@@ -20,7 +20,7 @@ export function UpdatePrompt() {
       className="fixed inset-x-3 bottom-20 z-40 mx-auto flex max-w-md items-center gap-3 rounded-[var(--radius-card)] border border-gold/50 bg-gold/15 p-3 text-gold-ink shadow-xl sm:bottom-5"
     >
       <RefreshCw className="size-5 shrink-0" aria-hidden="true" />
-      <p className="flex-1 text-sm">Hay una versión nueva de Alcancía lista para instalar.</p>
+      <p className="flex-1 text-sm">Hay una versión nueva de Finanzia lista para instalar.</p>
       <button
         type="button"
         onClick={() => void updateServiceWorker(true)}

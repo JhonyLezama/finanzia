@@ -14,6 +14,7 @@ import { DataSection } from './DataSection';
 import { ProfileSection } from './ProfileSection';
 import { PwaSection } from './PwaSection';
 import { RecurringSection } from './RecurringSection';
+import { AboutSection } from './AboutSection';
 
 const SECTIONS = [
   { id: 'perfil', label: 'Perfil' },
@@ -22,6 +23,7 @@ const SECTIONS = [
   { id: 'datos', label: 'Datos' },
   { id: 'auditoria', label: 'Auditoría' },
   { id: 'app', label: 'App' },
+  { id: 'acerca', label: 'Acerca de' },
 ] as const;
 
 type SectionId = (typeof SECTIONS)[number]['id'];
@@ -64,7 +66,7 @@ export default function SettingsPage() {
     const backup = await backupRepo.exportAll('0.1.0');
     downloadBlob(
       new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }),
-      `alcancia-backup-${backup.exportedAt.slice(0, 10)}.json`,
+      `finanzia-backup-${backup.exportedAt.slice(0, 10)}.json`,
     );
   };
 
@@ -75,7 +77,7 @@ export default function SettingsPage() {
     ]);
     downloadBlob(
       buildTransactionsCsv({ transactions, categories: allCategories }),
-      'alcancia-movimientos.csv',
+      'finanzia-movimientos.csv',
     );
   };
 
@@ -84,7 +86,7 @@ export default function SettingsPage() {
       <header>
         <h1 className="font-display text-2xl font-semibold text-ink sm:text-3xl">Ajustes</h1>
         <p className="mt-1 text-sm text-ink-muted">
-          Perfil, preferencias, categorías, recurrentes, datos y auditoría.
+          Perfil, preferencias, categorías, recurrentes, datos, auditoría y acerca de.
         </p>
       </header>
 
@@ -181,6 +183,8 @@ export default function SettingsPage() {
       {section === 'auditoria' ? <AuditSection entries={auditEntries} /> : null}
 
       {section === 'app' ? <PwaSection storage={storage} /> : null}
+
+      {section === 'acerca' ? <AboutSection /> : null}
     </section>
   );
 }

@@ -6,7 +6,7 @@ export default function OfflinePage() {
       <WifiOff className="size-10 text-gold" aria-hidden="true" />
       <h1 className="text-3xl font-semibold text-ink">Sin conexión</h1>
       <p className="text-ink-muted">
-        Alcancía funciona sin internet. Tus datos siguen guardados en este dispositivo.
+        Finanzia funciona sin internet. Tus datos siguen guardados en este dispositivo.
       </p>
     </main>
   );

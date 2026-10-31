@@ -123,7 +123,7 @@ export default function ReportsPage({ initialMonth }: ReportsPageProps) {
 
       {/* Printable header */}
       <div className="hidden print:block pb-4 border-b border-line">
-        <h2 className="text-2xl font-bold text-ink">Alcancía — Reporte Financiero</h2>
+        <h2 className="text-2xl font-bold text-ink">Finanzia — Reporte Financiero</h2>
         <p className="text-sm text-ink-muted">
           Período: {viewMode === 'monthly' ? formatMonthLong(selectedMonth) : `Año ${selectedMonth.slice(0, 4)}`}
         </p>

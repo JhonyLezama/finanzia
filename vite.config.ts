@@ -13,10 +13,10 @@ export default defineConfig({
       injectRegister: null,
       includeAssets: ['icon.svg', 'favicon-32.png', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Alcancía — finanzas personales',
-        short_name: 'Alcancía',
+        name: 'Finanzia — Finanzas Personales',
+        short_name: 'Finanzia',
         description:
-          'Presupuesto mensual, gastos fijos, metas de ahorro y reportes. Tus datos quedan en tu dispositivo.',
+          'Presupuesto mensual, gastos fijos, metas de ahorro y reportes por SysJoL. Tus datos quedan en tu dispositivo.',
         lang: 'es-PE',
         start_url: '/',
         scope: '/',

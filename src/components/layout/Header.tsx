@@ -9,7 +9,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-bg/95 backdrop-blur">
       <div className="mx-auto flex min-h-14 w-full max-w-[1200px] items-center justify-between gap-3 px-4 sm:px-6 lg:min-h-16 lg:px-8">
-        <span className="font-display text-lg font-semibold text-ink lg:hidden">Alcancía</span>
+        <span className="font-display text-lg font-semibold text-ink lg:hidden">Finanzia</span>
         <span className="hidden text-sm text-ink-muted lg:inline">Presupuesto personal</span>
 
         <div className="flex items-center gap-2">

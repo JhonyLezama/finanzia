@@ -23,7 +23,7 @@ export function WelcomeStep({ busy, error, onStartFresh, onSample }: WelcomeStep
         id="onboarding-welcome"
         className="mt-2 text-3xl font-semibold tracking-tight text-ink sm:text-4xl"
       >
-        Bienvenido a Alcancía
+        Bienvenido a Finanzia
       </h1>
       <p className="mt-3 text-base text-ink-muted">
         En pocos pasos vas a tener tu saldo, tus ingresos y tus gastos fijos listos para

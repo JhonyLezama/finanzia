@@ -1,4 +1,4 @@
-﻿import { createBrowserRouter, createMemoryRouter, type RouteObject } from 'react-router';
+import { createBrowserRouter, createMemoryRouter, type RouteObject } from 'react-router';
 import { RouteError } from '@/components/feedback/ErrorBoundary';
 import { AppShell } from '@/components/layout/AppShell';
 import BudgetPage from '@/routes/BudgetPage';
@@ -17,6 +17,9 @@ const shellRoutes: RouteObject[] = [
   { path: 'metas', Component: GoalsPage },
   { path: 'ajustes', lazy: () => import('@/routes/SettingsPage').then((m) => ({ Component: m.default })) },
   { path: 'importar', lazy: () => import('@/routes/ImportPage').then((m) => ({ Component: m.default })) },
+  { path: 'acerca-de', lazy: () => import('@/routes/AboutPage').then((m) => ({ Component: m.default })) },
+  { path: 'privacidad', lazy: () => import('@/routes/PrivacyPage').then((m) => ({ Component: m.default })) },
+  { path: 'terminos', lazy: () => import('@/routes/TermsPage').then((m) => ({ Component: m.default })) },
   { path: '*', Component: NotFoundPage },
 ];
 

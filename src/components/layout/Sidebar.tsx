@@ -1,4 +1,4 @@
-import { PiggyBank } from 'lucide-react';
+import { PiggyBank, Info, HardDrive } from 'lucide-react';
 import { Link, NavLink } from 'react-router';
 import { cn } from '@/lib/cn';
 import { navItems } from './nav-items';
@@ -11,7 +11,7 @@ export function Sidebar() {
         className="flex min-h-16 items-center gap-2 border-b border-line px-5 font-display text-lg font-semibold text-ink"
       >
         <PiggyBank className="size-6 text-gold" aria-hidden="true" />
-        Alcancía
+        Finanzia
       </Link>
 
       <nav aria-label="Principal" className="flex flex-1 flex-col gap-1 p-3">
@@ -38,9 +38,40 @@ export function Sidebar() {
         })}
       </nav>
 
-      <p className="border-t border-line p-4 text-xs leading-relaxed text-ink-muted">
-        Tus datos quedan en este dispositivo.
-      </p>
+      {/* Enlaces de Transparencia & Legal */}
+      <div className="border-t border-line px-4 py-3 space-y-2.5 text-xs">
+        <div className="flex flex-col gap-1 text-ink-muted">
+          <Link to="/acerca-de" className="hover:text-primary transition-colors flex items-center gap-1.5 font-medium">
+            <Info className="size-3.5" />
+            Acerca de Finanzia
+          </Link>
+          <div className="flex items-center gap-2 text-[11px] text-ink-muted/80">
+            <Link to="/privacidad" className="hover:underline">Privacidad</Link>
+            <span>•</span>
+            <Link to="/terminos" className="hover:underline">Términos</Link>
+          </div>
+        </div>
+
+        <div className="pt-2 border-t border-line/60 space-y-1.5">
+          <p className="text-[11px] text-ink-muted">
+            Desarrollado por{' '}
+            <a
+              href="https://sysjol.onrender.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-primary hover:underline"
+            >
+              SysJoL
+            </a>
+          </p>
+          <div>
+            <span className="inline-flex items-center gap-1 rounded-full border border-line bg-surface-2 px-2 py-0.5 text-[10px] font-medium text-ink-muted">
+              <HardDrive className="size-3 text-primary" aria-hidden="true" />
+              Datos 100% locales en tu equipo
+            </span>
+          </div>
+        </div>
+      </div>
     </aside>
   );
 }
