@@ -1,6 +1,5 @@
 import { Plus, Target, TrendingUp, Trophy } from 'lucide-react';
 import { useState } from 'react';
-import { Toaster } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -35,8 +34,6 @@ export default function GoalsPage() {
 
   return (
     <section className="space-y-6">
-      <Toaster position="bottom-right" richColors />
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

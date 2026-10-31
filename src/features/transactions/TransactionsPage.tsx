@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Toaster } from 'sonner';
 import { QuickAdd } from './QuickAdd';
 import { TransactionDrawer } from './TransactionDrawer';
 import { TransactionFilters } from './TransactionFilters';
@@ -57,8 +56,6 @@ export default function TransactionsPage() {
 
   return (
     <section className="space-y-6">
-      <Toaster position="bottom-right" richColors />
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

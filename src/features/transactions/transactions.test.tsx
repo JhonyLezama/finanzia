@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router';
+import { Toaster } from 'sonner';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { categoryRepo } from '@/db/repositories/categories';
 import { planRepo } from '@/db/repositories/plans';
@@ -45,6 +46,7 @@ async function seedExpense(description = 'Cine') {
 function renderTransactions(initialEntry = '/movimientos') {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
+      <Toaster />
       <Routes>
         <Route path="/movimientos" element={<TransactionsPage />} />
       </Routes>

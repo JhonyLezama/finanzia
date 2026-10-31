@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react';
 import { Link, Outlet } from 'react-router';
+import { Toaster } from 'sonner';
 import { OfflineBanner } from '@/components/feedback/OfflineBanner';
 import { FloatingCalculator } from '@/features/calculator/FloatingCalculator';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -46,6 +47,7 @@ export function AppShell() {
 
       {isDesktop ? null : <BottomNav />}
       <FloatingCalculator />
+      <Toaster position="bottom-right" richColors />
     </div>
   );
 }
