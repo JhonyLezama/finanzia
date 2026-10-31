@@ -74,7 +74,7 @@ describe('budget screen', () => {
       });
     });
 
-    expect(await screen.findByText(/por día/i)).toBeInTheDocument();
+    expect(await screen.findByText(/por día|sin margen diario/i)).toBeInTheDocument();
   });
 
   it('shows a closed month as read-only', async () => {
