@@ -184,10 +184,10 @@ describe('buildReminderBuckets', () => {
       states: [],
     });
 
-    expect(buckets.due[0].dueLabel).toBe('Vencido hace 2 días');
-    expect(buckets.due[1].dueLabel).toBe('Vence hoy');
-    expect(buckets.upcoming[0].dueLabel).toBe('Vence mañana');
-    expect(buckets.upcoming[1].dueLabel).toBe('Vence el 02/11');
+    expect(buckets.due[0]?.dueLabel).toBe('Vencido hace 2 días');
+    expect(buckets.due[1]?.dueLabel).toBe('Vence hoy');
+    expect(buckets.upcoming[0]?.dueLabel).toBe('Vence mañana');
+    expect(buckets.upcoming[1]?.dueLabel).toBe('Vence el 02/11');
   });
 
   it('formats a day and month', () => {

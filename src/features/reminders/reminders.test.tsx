@@ -159,3 +159,4 @@ describe('reminder bell', () => {
     expect(await screen.findByText('Cine')).toBeInTheDocument();
   });
 });
+

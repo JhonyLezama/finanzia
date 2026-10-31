@@ -93,6 +93,6 @@ describe('useReminders', () => {
     });
 
     await waitFor(() => expect(result.current.buckets?.due).toHaveLength(1));
-    expect(result.current.buckets?.due[0].item.name).toBe('Cine');
+    expect(result.current.buckets?.due[0]?.item.name).toBe('Cine');
   });
 });

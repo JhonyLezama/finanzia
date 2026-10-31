@@ -37,3 +37,4 @@ describe('reminderStateRepo', () => {
     expect(await reminderStateRepo.list()).toEqual([]);
   });
 });
+

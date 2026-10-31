@@ -63,3 +63,4 @@ describe('PayItemDialog', () => {
     expect(screen.getByLabelText('Fecha')).toHaveValue(yesterday);
   });
 });
+
