@@ -1,5 +1,7 @@
 import { EmptyState } from '@/components/ui/EmptyState';
 import type { Category, UUID } from '@/domain/models';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { TransactionCard } from './TransactionCard';
 import { TransactionRow } from './TransactionRow';
 import type { TransactionWithBalance } from './useTransactions';
 
@@ -18,6 +20,8 @@ export function TransactionList({
   onEdit,
   onDelete,
 }: TransactionListProps) {
+  const isWide = useMediaQuery('(min-width: 640px)');
+
   if (transactions.length === 0) {
     return (
       <EmptyState
@@ -28,6 +32,26 @@ export function TransactionList({
             : 'Empezá registrando tu primer ingreso o gasto del mes.'
         }
       />
+    );
+  }
+
+  if (!isWide) {
+    return (
+      <ul
+        aria-label="Movimientos"
+        className="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface"
+      >
+        {transactions.map((tx) => (
+          <TransactionCard
+            key={tx.id}
+            transaction={tx}
+            category={tx.categoryId ? categoryMap.get(tx.categoryId) : undefined}
+            isClosed={isClosed}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        ))}
+      </ul>
     );
   }
 

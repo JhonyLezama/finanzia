@@ -1,33 +1,11 @@
-import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Link, Outlet } from 'react-router';
 import { OfflineBanner } from '@/components/feedback/OfflineBanner';
 import { FloatingCalculator } from '@/features/calculator/FloatingCalculator';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { BottomNav } from './BottomNav';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
-
-function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-      return true;
-    }
-    return window.matchMedia(query).matches;
-  });
-
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') {
-      return;
-    }
-    const media = window.matchMedia(query);
-    const onChange = () => setMatches(media.matches);
-    onChange();
-    media.addEventListener('change', onChange);
-    return () => media.removeEventListener('change', onChange);
-  }, [query]);
-
-  return matches;
-}
 
 export function AppShell() {
   const isDesktop = useMediaQuery('(min-width: 1024px)');
@@ -55,13 +33,15 @@ export function AppShell() {
       </div>
 
       {!isDesktop ? (
-        <Link
-          to="/movimientos"
-          aria-label="Registrar movimiento"
-          className="fixed bottom-20 right-4 z-30 flex size-14 items-center justify-center rounded-full bg-primary text-primary-ink shadow-lg transition hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-        >
-          <Plus className="size-6" aria-hidden="true" />
-        </Link>
+        <nav aria-label="Acciones rápidas">
+          <Link
+            to="/movimientos"
+            aria-label="Registrar movimiento"
+            className="fixed bottom-20 right-4 z-30 flex size-14 items-center justify-center rounded-full bg-primary text-primary-ink shadow-lg transition hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+          >
+            <Plus className="size-6" aria-hidden="true" />
+          </Link>
+        </nav>
       ) : null}
 
       {isDesktop ? null : <BottomNav />}

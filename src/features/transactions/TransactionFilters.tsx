@@ -106,7 +106,7 @@ export function TransactionFilters({
           ))}
         </div>
 
-        <div className="w-44">
+        <div className="w-full sm:w-44">
           <Select
             value={categoryFilter}
             onChange={(e) => onCategoryChange(e.target.value)}
