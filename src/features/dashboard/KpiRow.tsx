@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
+import { Wallet, Sparkles, TrendingUp, PiggyBank, ArrowUpRight, HelpCircle } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Money } from '@/components/ui/Money';
 import type { DailyAllowance } from '@/domain/budget';
-import { formatPercent } from '@/domain/money';
+import { asCents, formatPercent } from '@/domain/money';
 import type { Cents } from '@/domain/models';
 import { cn } from '@/lib/cn';
 
@@ -23,24 +24,47 @@ export interface KpiRowProps {
 
 interface KpiCardProps {
   label: string;
+  badge?: ReactNode;
   hint?: ReactNode;
-  tone?: 'default' | 'negative';
+  icon?: ReactNode;
+  cardClassName?: string;
+  valueClassName?: string;
   children: ReactNode;
 }
 
-function KpiCard({ label, hint, tone = 'default', children }: KpiCardProps) {
+function KpiCard({
+  label,
+  badge,
+  hint,
+  icon,
+  cardClassName,
+  valueClassName,
+  children,
+}: KpiCardProps) {
   return (
-    <Card role="group" aria-label={label} className="flex flex-col justify-between gap-2 p-4">
-      <p className="text-xs font-medium text-ink-muted">{label}</p>
-      <p
-        className={cn(
-          'text-xl font-semibold sm:text-2xl',
-          tone === 'negative' ? 'text-red' : 'text-ink',
-        )}
-      >
-        {children}
-      </p>
-      {hint ? <div className="text-xs text-ink-muted">{hint}</div> : null}
+    <Card
+      role="group"
+      aria-label={label}
+      className={cn(
+        'relative flex flex-col justify-between overflow-hidden rounded-[var(--radius-card)] border p-4 sm:p-5 transition-all shadow-sm',
+        cardClassName || 'border-line bg-surface',
+      )}
+    >
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <span className="flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase text-ink-muted">
+            {icon}
+            {label}
+          </span>
+          {badge}
+        </div>
+
+        <div className={cn('text-2xl sm:text-3xl font-bold tracking-tight', valueClassName || 'text-ink')}>
+          {children}
+        </div>
+      </div>
+
+      {hint ? <div className="mt-3 text-xs leading-relaxed text-ink-muted border-t border-line/40 pt-2.5">{hint}</div> : null}
     </Card>
   );
 }
@@ -59,62 +83,133 @@ export function KpiRow({
   monthlyGoalContribCents,
   dailyAllowance,
 }: KpiRowProps) {
+  const isOverSpent = executionPct !== null && executionPct > 1;
+  const isHealthySpendable = spendableCents > 0;
+
+  // Cálculo semanal estimado (7 días de margen diario)
+  const weeklyAllowanceCents = dailyAllowance && dailyAllowance.amountCents > 0
+    ? asCents(dailyAllowance.amountCents * 7)
+    : null;
+
   const executionHint =
     planExpenseCents > 0 ? (
-      <>
-        Gastado <Money cents={monthExpenseCents} /> de <Money cents={planExpenseCents} /> del
-        plan.
-      </>
+      <div className="space-y-1">
+        <p>
+          Gastado <Money cents={monthExpenseCents} /> de <Money cents={planExpenseCents} /> del plan.
+        </p>
+        {isOverSpent ? (
+          <p className="font-medium text-amber-700 dark:text-amber-400">
+            ⚠️ Has superado el presupuesto planificado.
+          </p>
+        ) : (
+          <p className="text-emerald-700 dark:text-emerald-400">
+            ✓ Vas dentro de lo proyectado para el mes.
+          </p>
+        )}
+      </div>
     ) : (
-      'Sin plan de gastos para este mes.'
+      'Sin plan de gastos configurado para este mes.'
     );
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+      {/* 1. Saldo Real (Patrimonio Total en Mano) */}
       {isCurrentMonth ? (
         <KpiCard
           label="Saldo real"
-          hint="Todo lo que tenés, incluido lo ahorrado en metas."
+          icon={<Wallet className="size-4 text-primary" aria-hidden="true" />}
+          cardClassName="border-primary/25 bg-primary/[0.03] dark:bg-primary/[0.08]"
+          valueClassName="text-ink"
+          badge={
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+              Total en mano
+            </span>
+          }
+          hint={
+            <div className="space-y-1">
+              <p>Todo tu dinero actual, incluyendo lo guardado en tus metas de ahorro.</p>
+              {remainingSavingsCents > 0 || pendingFixedCents > 0 ? (
+                <p className="text-[11px] text-ink-muted/80">
+                  Compromisos del mes: <Money cents={asCents(pendingFixedCents + remainingSavingsCents)} />
+                </p>
+              ) : null}
+            </div>
+          }
         >
           <Money cents={availableCents} />
         </KpiCard>
       ) : (
-        <KpiCard label="Saldo del mes" hint="Acumulado al último día del mes.">
+        <KpiCard
+          label="Saldo del mes"
+          icon={<Wallet className="size-4 text-ink-muted" aria-hidden="true" />}
+          hint="Acumulado al último día del mes."
+        >
           <Money cents={balanceAtMonthEndCents} />
         </KpiCard>
       )}
 
+      {/* 2. Disponible para Gastar (¡El más importante!) */}
       {isCurrentMonth ? (
         <KpiCard
           label="Disponible para gastar"
-          tone={spendableCents < 0 ? 'negative' : 'default'}
+          icon={<Sparkles className={cn('size-4', isHealthySpendable ? 'text-emerald-600 dark:text-emerald-400' : 'text-red')} aria-hidden="true" />}
+          cardClassName={cn(
+            isHealthySpendable
+              ? 'border-emerald-500/30 bg-emerald-500/[0.05] dark:bg-emerald-500/[0.1]'
+              : 'border-red/40 bg-red-soft/40',
+          )}
+          valueClassName={isHealthySpendable ? 'text-emerald-800 dark:text-emerald-300' : 'text-red'}
+          badge={
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                isHealthySpendable
+                  ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300'
+                  : 'bg-red/15 text-red',
+              )}
+            >
+              {isHealthySpendable ? 'Libre para gastar' : 'Ajustado / Negativo'}
+            </span>
+          }
           hint={
-            <div className="space-y-1">
-              {dailyAllowance ? (
-                dailyAllowance.amountCents > 0 ? (
-                  <p className="font-medium text-ink">
+            <div className="space-y-1.5">
+              {dailyAllowance && dailyAllowance.amountCents > 0 ? (
+                <div className="space-y-1 text-ink">
+                  <p className="font-semibold text-xs">
                     Podés gastar <Money cents={dailyAllowance.amountCents} /> por día
-                    <span className="block text-ink-muted">
-                      {dailyAllowance.days === 1
-                        ? 'Queda 1 día'
-                        : `Quedan ${dailyAllowance.days} días`}
-                      {' · '}
-                      {dailyAllowance.basis === 'budget'
-                        ? 'según tu presupuesto variable'
-                        : 'según tu saldo disponible'}
-                    </span>
+                    {weeklyAllowanceCents ? (
+                      <span className="block font-normal text-ink-muted">
+                        (~<Money cents={weeklyAllowanceCents} /> por semana)
+                      </span>
+                    ) : null}
                   </p>
-                ) : (
-                  <p className="font-medium text-ink">Sin margen diario por ahora.</p>
-                )
-              ) : null}
-              <details>
-                <summary className="cursor-pointer select-none">¿Cómo se calcula?</summary>
-                <p className="mt-1">
-                  Saldo real <Money cents={availableCents} /> − fijos pendientes{' '}
-                  <Money cents={pendingFixedCents} /> − ahorro pendiente{' '}
-                  <Money cents={remainingSavingsCents} />
-                </p>
+                  <p className="text-[11px] text-ink-muted">
+                    {dailyAllowance.days === 1
+                      ? 'Queda 1 día de mes'
+                      : `Quedan ${dailyAllowance.days} días de mes`}
+                  </p>
+                </div>
+              ) : (
+                <p className="font-medium text-ink">Sin margen diario por ahora.</p>
+              )}
+
+              <details className="text-[11px] text-ink-muted/90 group pt-1">
+                <summary className="cursor-pointer select-none font-medium hover:text-ink inline-flex items-center gap-1">
+                  <HelpCircle className="size-3" />
+                  ¿Cómo se calcula este monto?
+                </summary>
+                <div className="mt-1.5 space-y-1 rounded bg-surface/70 p-2 text-ink border border-line/50">
+                  <p>
+                    <strong>Saldo real</strong> (<Money cents={availableCents} />)
+                    <br />
+                    − <strong>Fijos pendientes:</strong> <Money cents={pendingFixedCents} />
+                    <br />
+                    − <strong>Ahorro protegido:</strong> <Money cents={remainingSavingsCents} />
+                  </p>
+                  <p className="text-[10px] text-ink-muted italic border-t border-line/40 pt-1">
+                    💡 Si necesitas más disponible, puedes retirar de tus metas de ahorro en cualquier momento.
+                  </p>
+                </div>
               </details>
             </div>
           }
@@ -122,16 +217,68 @@ export function KpiRow({
           <Money cents={spendableCents} />
         </KpiCard>
       ) : (
-        <KpiCard label="Ahorro aportado" hint="Aportes netos a metas durante el mes.">
+        <KpiCard
+          label="Ahorro aportado"
+          icon={<PiggyBank className="size-4 text-primary" aria-hidden="true" />}
+          hint="Aportes netos a metas durante el mes."
+        >
           <Money cents={monthlyGoalContribCents} />
         </KpiCard>
       )}
 
-      <KpiCard label="Ejecutado del mes" hint={executionHint}>
+      {/* 3. Ejecutado del mes (Ritmo de Gasto) */}
+      <KpiCard
+        label="Ejecutado del mes"
+        icon={<TrendingUp className="size-4 text-ink-muted" aria-hidden="true" />}
+        cardClassName={cn(
+          isOverSpent
+            ? 'border-amber-500/30 bg-amber-500/[0.04] dark:bg-amber-500/[0.08]'
+            : 'border-line bg-surface',
+        )}
+        valueClassName={isOverSpent ? 'text-amber-800 dark:text-amber-300' : 'text-ink'}
+        badge={
+          executionPct !== null ? (
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                isOverSpent
+                  ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300'
+                  : 'bg-surface-2 text-ink-muted',
+              )}
+            >
+              {isOverSpent ? 'Excedido' : 'En rango'}
+            </span>
+          ) : null
+        }
+        hint={executionHint}
+      >
         {formatPercent(executionPct)}
       </KpiCard>
 
-      <KpiCard label="Tasa de ahorro" hint="Ingresos menos gastos sobre ingresos.">
+      {/* 4. Tasa de ahorro */}
+      <KpiCard
+        label="Tasa de ahorro"
+        icon={<PiggyBank className="size-4 text-primary" aria-hidden="true" />}
+        cardClassName="border-line bg-surface"
+        valueClassName={savingsRate !== null && savingsRate > 0 ? 'text-primary' : 'text-ink'}
+        badge={
+          savingsRate !== null && savingsRate > 0 ? (
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary inline-flex items-center gap-0.5">
+              <ArrowUpRight className="size-3" /> Positivo
+            </span>
+          ) : null
+        }
+        hint={
+          <div className="space-y-1">
+            <p>Ingresos menos gastos sobre tus ingresos totales.</p>
+            {monthlyGoalContribCents > 0 ? (
+              <p className="text-primary font-medium text-[11px]">
+                🎯 Apartaste <Money cents={monthlyGoalContribCents} /> para tus metas este mes.
+              </p>
+            ) : null}
+          </div>
+        }
+      >
         {formatPercent(savingsRate)}
       </KpiCard>
     </div>
