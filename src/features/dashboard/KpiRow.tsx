@@ -86,9 +86,11 @@ export function KpiRow({
   const isOverSpent = executionPct !== null && executionPct > 1;
   const isHealthySpendable = spendableCents > 0;
 
-  // Cálculo semanal estimado (7 días de margen diario)
-  const weeklyAllowanceCents = dailyAllowance && dailyAllowance.amountCents > 0
-    ? asCents(dailyAllowance.amountCents * 7)
+  // Cálculo semanal estimado: solo tiene sentido mostrar "por semana" si quedan al menos 7 días de mes
+  // y nunca debe sugerir un valor mayor a todo el disponible real.
+  const showWeekly = dailyAllowance && dailyAllowance.amountCents > 0 && dailyAllowance.days >= 7;
+  const weeklyAllowanceCents = showWeekly
+    ? asCents(Math.min(dailyAllowance.amountCents * 7, Math.max(0, spendableCents)))
     : null;
 
   const executionHint =
