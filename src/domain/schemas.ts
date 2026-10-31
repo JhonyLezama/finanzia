@@ -329,6 +329,13 @@ export const auditEntrySchema = z.object({
   after: z.unknown().optional(),
 });
 
+export const reminderStateSchema = z.object({
+  planItemId: uuidSchema,
+  snoozedUntil: isoDateSchema.optional(),
+  hiddenAt: timestampSchema.optional(),
+  updatedAt: timestampSchema,
+});
+
 export const backupSchema = z.object({
   schemaVersion: z.literal(1),
   appVersion: z.string().min(1),

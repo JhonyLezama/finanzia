@@ -8,6 +8,7 @@ import type {
   MonthlyPlan,
   PlanItem,
   RecurringRule,
+  ReminderState,
   Settings,
   Transaction,
 } from '@/domain/models';
@@ -40,6 +41,7 @@ export class AlcanciaDB extends Dexie {
   goals!: EntityTable<Goal, 'id'>;
   importBatches!: EntityTable<ImportBatch, 'id'>;
   auditLog!: EntityTable<AuditEntry, 'id'>;
+  reminderStates!: EntityTable<ReminderState, 'planItemId'>;
   meta!: EntityTable<MetaEntry, 'key'>;
 
   constructor(name = DB_NAME) {
@@ -57,6 +59,10 @@ export class AlcanciaDB extends Dexie {
       importBatches: 'id, importedAt, status',
       auditLog: 'id, at, entity, entityId',
       meta: 'key',
+    });
+
+    this.version(2).stores({
+      reminderStates: 'planItemId',
     });
   }
 }
