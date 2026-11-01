@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { Providers } from '@/app/providers';
 import { db } from '@/db/db';
 import { categoryRepo } from '@/db/repositories/categories';
+import { planRepo } from '@/db/repositories/plans';
 import { recurringRepo } from '@/db/repositories/recurring';
 import { settingsRepo } from '@/db/repositories/settings';
 import { transactionRepo } from '@/db/repositories/transactions';
@@ -71,6 +72,36 @@ describe('settings screen', () => {
       const rule = (await recurringRepo.list()).find((item) => item.name === 'Alquiler');
       expect(rule?.active).toBe(0);
     });
+  });
+
+  it('removes a recurring rule and its pending commitments after confirmation', async () => {
+    const user = userEvent.setup();
+    const categories = await categoryRepo.list();
+    const housing = categories.find((category) => category.name === 'Vivienda')!;
+    const rule = await recurringRepo.create({
+      name: 'Alquiler',
+      kind: 'fixed_expense',
+      amountCents: asCents(38000),
+      categoryId: housing.id,
+      dayOfMonth: 5,
+      startMonth: currentMonth(),
+    });
+    await planRepo.getOrCreate(currentMonth());
+    const [item] = await planRepo.ensureItems(currentMonth());
+
+    renderSettings();
+
+    await user.click(screen.getByRole('button', { name: 'Recurrentes' }));
+    await user.click(await screen.findByRole('button', { name: 'Eliminar Alquiler' }));
+    await user.click(await screen.findByRole('button', { name: 'Eliminar regla' }));
+
+    await waitFor(async () => {
+      expect(await db.recurringRules.get(rule.id)).toBeUndefined();
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Eliminar Alquiler' })).not.toBeInTheDocument();
+    });
+    expect(await db.planItems.get(item!.id)).toBeUndefined();
   });
 
   it('saves the profile name', async () => {

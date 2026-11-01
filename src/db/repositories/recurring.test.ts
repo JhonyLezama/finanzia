@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { asCents } from '@/domain/money';
-import type { Category, MonthKey } from '@/domain/models';
+import type { Category, ISODate, MonthKey } from '@/domain/models';
 import { ConflictError, db } from '../db';
 import { resetDb } from '../test-utils';
 import { auditRepo } from './audit';
 import { categoryRepo } from './categories';
 import { planRepo } from './plans';
 import { recurringRepo, type RecurringRuleInput } from './recurring';
+import { reminderStateRepo } from './reminder-states';
 
 function ctx(entity: { updatedAt: string }) {
   return { expectedUpdatedAt: entity.updatedAt };
@@ -80,16 +81,49 @@ describe('recurringRepo.create', () => {
 });
 
 describe('recurringRepo.update', () => {
-  it('does not alter existing plan items when a rule changes', async () => {
+  it('updates every pending plan item generated from the rule', async () => {
     const rule = await recurringRepo.create(ruleInput());
     await planRepo.getOrCreate('2026-10' as MonthKey);
-    const items = await planRepo.ensureItems('2026-10' as MonthKey);
-    const before = items[0];
+    const october = await planRepo.ensureItems('2026-10' as MonthKey);
+    await planRepo.getOrCreate('2026-11' as MonthKey);
+    const november = await planRepo.ensureItems('2026-11' as MonthKey);
 
+    await recurringRepo.update(
+      rule.id,
+      {
+        name: 'Alquiler casa',
+        amountCents: asCents(40000),
+        categoryId: servicios.id,
+        dayOfMonth: 12,
+      },
+      ctx(rule),
+    );
+
+    for (const item of [october[0]!, november[0]!]) {
+      const updated = await db.planItems.get(item.id);
+      expect(updated).toMatchObject({
+        name: 'Alquiler casa',
+        amountCents: 40000,
+        categoryId: servicios.id,
+        dueDate: `${item.planId}-12`,
+      });
+    }
+  });
+
+  it('keeps settled plan items unchanged when a rule changes', async () => {
+    const rule = await recurringRepo.create(ruleInput());
+    await planRepo.getOrCreate('2026-10' as MonthKey);
+    const [item] = await planRepo.ensureItems('2026-10' as MonthKey);
+
+    await planRepo.payItem(
+      item!.id,
+      { amountCents: asCents(38000), date: '2026-10-05' as ISODate },
+      { expectedUpdatedAt: item!.updatedAt },
+    );
     await recurringRepo.update(rule.id, { amountCents: asCents(40000) }, ctx(rule));
 
-    const after = await db.planItems.get(before!.id);
-    expect(after?.amountCents).toBe(before?.amountCents);
+    const settled = await db.planItems.get(item!.id);
+    expect(settled).toMatchObject({ status: 'settled', amountCents: 38000 });
   });
 
   it('rejects a stale update', async () => {
@@ -139,15 +173,27 @@ describe('recurringRepo.resume', () => {
 });
 
 describe('recurringRepo.remove', () => {
-  it('removes the rule but keeps its historical plan items', async () => {
+  it('removes the rule and its pending plan items, keeping settled history', async () => {
     const rule = await recurringRepo.create(ruleInput());
     await planRepo.getOrCreate('2026-10' as MonthKey);
-    const items = await planRepo.ensureItems('2026-10' as MonthKey);
+    const [octoberItem] = await planRepo.ensureItems('2026-10' as MonthKey);
+    await planRepo.getOrCreate('2026-11' as MonthKey);
+    const [novemberItem] = await planRepo.ensureItems('2026-11' as MonthKey);
+
+    await planRepo.payItem(
+      octoberItem!.id,
+      { amountCents: asCents(38000), date: '2026-10-05' as ISODate },
+      { expectedUpdatedAt: octoberItem!.updatedAt },
+    );
+    await reminderStateRepo.hide(novemberItem!.id);
 
     await recurringRepo.remove(rule.id);
 
     expect(await db.recurringRules.get(rule.id)).toBeUndefined();
-    expect(await db.planItems.get(items[0]!.id)).toBeDefined();
+    expect(await db.planItems.get(octoberItem!.id)).toMatchObject({ status: 'settled' });
+    expect(await db.planItems.get(novemberItem!.id)).toBeUndefined();
+    expect(await db.reminderStates.get(novemberItem!.id)).toBeUndefined();
+    expect(await db.transactions.where('planItemId').equals(octoberItem!.id).count()).toBe(1);
   });
 });
 

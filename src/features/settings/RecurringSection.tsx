@@ -155,7 +155,8 @@ export function RecurringSection({
         <div>
           <h2 className="font-display text-lg font-semibold text-ink">Recurrentes</h2>
           <p className="mt-1 text-sm text-ink-muted">
-            Ingresos y gastos fijos que se generan cada mes. Pausar deja de reservarlos.
+            Ingresos y gastos fijos que se generan cada mes. Editar actualiza los compromisos
+            pendientes; pausar deja de reservarlos.
           </p>
         </div>
         <Button
@@ -357,7 +358,7 @@ export function RecurringSection({
           }
         }}
         title={deleteTarget ? `Eliminar ${deleteTarget.name}` : 'Eliminar regla'}
-        description="La regla dejará de generar movimientos futuros. Los movimientos ya generados se conservan."
+        description="Se eliminarán la regla y los compromisos pendientes de todos los meses. Los movimientos ya pagados se conservan."
         footer={
           <>
             <Button variant="ghost" onClick={() => setDeleteTarget(null)}>

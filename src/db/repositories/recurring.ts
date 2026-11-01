@@ -1,3 +1,4 @@
+import { dueDateForMonth } from '@/domain/dates';
 import type { Cents, MonthKey, PlanItem, RecurringRule, UUID } from '@/domain/models';
 import { recurringRuleSchema } from '@/domain/schemas';
 import { ConflictError, db, nextTimestamp, type Ctx } from '../db';
@@ -26,6 +27,18 @@ function withoutUndefined<T extends object>(value: T): Partial<T> {
   return Object.fromEntries(
     Object.entries(value).filter(([, entry]) => entry !== undefined),
   ) as Partial<T>;
+}
+
+async function pendingItemsForRule(ruleId: UUID): Promise<PlanItem[]> {
+  const [items, plans] = await Promise.all([
+    db.planItems.where('recurringRuleId').equals(ruleId).toArray(),
+    db.plans.toArray(),
+  ]);
+  const closedPlanIds = new Set(
+    plans.filter((plan) => plan.status === 'closed').map((plan) => plan.id),
+  );
+
+  return items.filter((item) => item.status === 'pending' && !closedPlanIds.has(item.planId));
 }
 
 async function assertCategoryMatches(
@@ -93,44 +106,63 @@ export const recurringRepo = {
     patch: Partial<RecurringRuleInput>,
     ctx: Ctx,
   ): Promise<RecurringRule> {
-    return db.transaction('rw', [db.recurringRules, db.categories, db.auditLog], async () => {
-      const current = await db.recurringRules.get(id);
-      if (!current) {
-        throw new Error('La regla no existe.');
-      }
-      if (ctx.expectedUpdatedAt && current.updatedAt !== ctx.expectedUpdatedAt) {
-        throw new ConflictError();
-      }
+    return db.transaction(
+      'rw',
+      [db.recurringRules, db.planItems, db.plans, db.categories, db.auditLog],
+      async () => {
+        const current = await db.recurringRules.get(id);
+        if (!current) {
+          throw new Error('La regla no existe.');
+        }
+        if (ctx.expectedUpdatedAt && current.updatedAt !== ctx.expectedUpdatedAt) {
+          throw new ConflictError();
+        }
 
-      const definedPatch = withoutUndefined(patch);
-      const kind = definedPatch.kind ?? current.kind;
-      const categoryId = definedPatch.categoryId ?? current.categoryId;
-      await assertCategoryMatches(kind, categoryId);
+        const definedPatch = withoutUndefined(patch);
+        const kind = definedPatch.kind ?? current.kind;
+        const categoryId = definedPatch.categoryId ?? current.categoryId;
+        await assertCategoryMatches(kind, categoryId);
 
-      const candidate = recurringRuleSchema.parse({
-        ...current,
-        ...definedPatch,
-        name: definedPatch.name?.trim() ?? current.name,
-        kind,
-        categoryId,
-        id: current.id,
-        active: current.active,
-        createdAt: current.createdAt,
-        updatedAt: nextTimestamp(current.updatedAt),
-      }) as RecurringRule;
+        const candidate = recurringRuleSchema.parse({
+          ...current,
+          ...definedPatch,
+          name: definedPatch.name?.trim() ?? current.name,
+          kind,
+          categoryId,
+          id: current.id,
+          active: current.active,
+          createdAt: current.createdAt,
+          updatedAt: nextTimestamp(current.updatedAt),
+        }) as RecurringRule;
 
-      await db.recurringRules.put(candidate);
-      await auditRepo.log({
-        action: 'update',
-        entity: 'recurring_rule',
-        entityId: candidate.id,
-        summary: `Regla recurrente actualizada: ${candidate.name}`,
-        before: current,
-        after: candidate,
-      });
+        await db.recurringRules.put(candidate);
 
-      return candidate;
-    });
+        const pendingItems = await pendingItemsForRule(candidate.id);
+        for (const item of pendingItems) {
+          await db.planItems.put({
+            ...item,
+            name: candidate.name,
+            kind: candidate.kind,
+            amountCents: candidate.amountCents,
+            categoryId: candidate.categoryId,
+            dueDate: dueDateForMonth(item.planId, candidate.dayOfMonth),
+            note: candidate.note,
+            updatedAt: nextTimestamp(item.updatedAt),
+          });
+        }
+
+        await auditRepo.log({
+          action: 'update',
+          entity: 'recurring_rule',
+          entityId: candidate.id,
+          summary: `Regla recurrente actualizada: ${candidate.name}`,
+          before: current,
+          after: candidate,
+        });
+
+        return candidate;
+      },
+    );
   },
 
   async pause(id: UUID): Promise<void> {
@@ -190,20 +222,31 @@ export const recurringRepo = {
   },
 
   async remove(id: UUID): Promise<void> {
-    await db.transaction('rw', [db.recurringRules, db.auditLog], async () => {
-      const current = await db.recurringRules.get(id);
-      if (!current) {
-        throw new Error('La regla no existe.');
-      }
+    await db.transaction(
+      'rw',
+      [db.recurringRules, db.planItems, db.plans, db.reminderStates, db.auditLog],
+      async () => {
+        const current = await db.recurringRules.get(id);
+        if (!current) {
+          throw new Error('La regla no existe.');
+        }
 
-      await db.recurringRules.delete(id);
-      await auditRepo.log({
-        action: 'delete',
-        entity: 'recurring_rule',
-        entityId: id,
-        summary: `Regla recurrente eliminada: ${current.name}`,
-        before: current,
-      });
-    });
+        const pendingItems = await pendingItemsForRule(id);
+        if (pendingItems.length > 0) {
+          const itemIds = pendingItems.map((item) => item.id);
+          await db.planItems.bulkDelete(itemIds);
+          await db.reminderStates.bulkDelete(itemIds);
+        }
+
+        await db.recurringRules.delete(id);
+        await auditRepo.log({
+          action: 'delete',
+          entity: 'recurring_rule',
+          entityId: id,
+          summary: `Regla recurrente eliminada: ${current.name}`,
+          before: current,
+        });
+      },
+    );
   },
 };

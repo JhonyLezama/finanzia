@@ -311,9 +311,9 @@ type ISOTimestamp = string; // ISO 8601 UTC
 ```
 
 - Solo frecuencia mensual en v1.
-- Editar una regla afecta a los meses futuros; los `PlanItem` ya creados no cambian.
+- Editar una regla actualiza sus `PlanItem` pendientes (nombre, monto, categoría y fecha) en todos los meses abiertos; los liquidados u omitidos no cambian.
 - Pausar (`active = 0`) detiene la generación futura; los items existentes se conservan.
-- Eliminar una regla solo si no tiene items generados; si los tiene, se pausa.
+- Eliminar una regla elimina también sus `PlanItem` pendientes y sus recordatorios en meses abiertos; los items liquidados u omitidos y los movimientos ya registrados se conservan.
 
 #### Goal
 
