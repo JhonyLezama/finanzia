@@ -67,9 +67,9 @@ export function ChartTable({
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-line/60">
+            <tbody className="divide-y divide-line">
               {rows.map((row, rIdx) => (
-                <tr key={rIdx} className="hover:bg-surface-2/50">
+                <tr key={rIdx} className="hover:bg-surface-2">
                   {row.map((cell, cIdx) => (
                     <td key={cIdx} className="py-2.5 px-3 first:pl-0 last:pr-0 text-ink">
                       {cell}

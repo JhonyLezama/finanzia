@@ -35,10 +35,10 @@ const GROUP_LABELS: Record<Category['group'], string> = {
 const GROUP_ORDER: Category['group'][] = ['fixed', 'variable', 'income'];
 
 const menuContentClass =
-  'z-50 min-w-40 rounded-[var(--radius-control)] border border-line bg-surface p-1 shadow-lg';
+  'z-50 min-w-40 rounded-[var(--radius-control)] border border-line-strong bg-surface p-1 shadow-pop';
 
 const menuItemClass =
-  'flex cursor-pointer items-center gap-2 rounded px-2.5 py-1.5 text-sm text-ink outline-none hover:bg-surface-2 focus:bg-surface-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50';
+  'flex min-h-10 cursor-pointer items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none hover:bg-surface-2 focus:bg-surface-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50';
 
 export function CategoriesSection({
   categories,
@@ -271,7 +271,7 @@ export function CategoriesSection({
                           <button
                             type="button"
                             aria-label={`Acciones de ${category.name}`}
-                            className="inline-flex size-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                            className="inline-flex size-11 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                           >
                             <MoreHorizontal className="size-4" aria-hidden="true" />
                           </button>

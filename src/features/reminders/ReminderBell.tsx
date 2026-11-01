@@ -83,7 +83,7 @@ export function ReminderBell() {
             sideOffset={8}
             collisionPadding={16}
             aria-label="Pendientes"
-            className="z-50 w-[min(92vw,22rem)] max-h-[70dvh] overflow-y-auto rounded-[var(--radius-modal)] border border-line bg-surface shadow-2xl animate-in fade-in-0 zoom-in-95"
+            className="z-50 w-[min(92vw,22rem)] max-h-[70dvh] overflow-y-auto rounded-[var(--radius-modal)] border border-line-strong bg-surface shadow-pop animate-in fade-in-0 zoom-in-95"
           >
             <ReminderPanel
               buckets={buckets}

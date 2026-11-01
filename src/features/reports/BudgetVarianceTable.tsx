@@ -38,7 +38,7 @@ export function BudgetVarianceTable({ rows }: BudgetVarianceTableProps) {
                 <th scope="col" className="pb-2 px-3 last:pr-0 text-right">% Desvío</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-line/60">
+            <tbody className="divide-y divide-line">
               {rows.map((row, idx) => {
                 const isOver = row.varianceCents > 0;
                 const isUnder = row.varianceCents < 0;
@@ -52,7 +52,7 @@ export function BudgetVarianceTable({ rows }: BudgetVarianceTableProps) {
                       : 'Sin grupo';
 
                 return (
-                  <tr key={row.categoryId ?? `un-${idx}`} className="hover:bg-surface-2/50">
+                  <tr key={row.categoryId ?? `un-${idx}`} className="hover:bg-surface-2">
                     <td className="py-2.5 px-3 first:pl-0 font-medium text-ink">
                       {row.categoryName}
                     </td>

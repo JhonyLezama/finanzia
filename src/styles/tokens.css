@@ -1,10 +1,11 @@
 :root {
-  --bg: #f3f5f2;
+  --bg: #eef2ee;
   --surface: #ffffff;
-  --surface-2: #e9eee9;
+  --surface-2: #e4ebe5;
   --ink: #102a24;
-  --ink-muted: #536a63;
-  --line: #d8e0da;
+  --ink-muted: #4d635c;
+  --line: #c3cec6;
+  --line-strong: #78897f;
   --primary: #14624f;
   --primary-ink: #ffffff;
   --gold: #d99a1f;
@@ -12,6 +13,9 @@
   --red: #b23a48;
   --red-soft: #f7e6e8;
   --focus: #14624f;
+  --elevation-card: 0 1px 2px rgb(16 42 36 / 0.04), 0 1px 3px rgb(16 42 36 / 0.06);
+  --elevation-pop: 0 2px 4px rgb(16 42 36 / 0.06), 0 16px 40px -12px rgb(16 42 36 / 0.28);
+  --elevation-bar: 0 -1px 2px rgb(16 42 36 / 0.04), 0 -8px 24px -12px rgb(16 42 36 / 0.2);
 }
 
 [data-theme='dark'] {
@@ -21,6 +25,7 @@
   --ink: #e8f1ec;
   --ink-muted: #9aaea6;
   --line: #263a33;
+  --line-strong: #4f6f63;
   --primary: #5acca9;
   --primary-ink: #062019;
   --gold: #e8b54a;
@@ -28,6 +33,9 @@
   --red: #f07e92;
   --red-soft: #3a1d24;
   --focus: #5acca9;
+  --elevation-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px rgb(0 0 0 / 0.35);
+  --elevation-pop: 0 2px 4px rgb(0 0 0 / 0.35), 0 16px 40px -12px rgb(0 0 0 / 0.6);
+  --elevation-bar: 0 -1px 2px rgb(0 0 0 / 0.4), 0 -8px 24px -12px rgb(0 0 0 / 0.7);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,6 +46,7 @@
     --ink: #e8f1ec;
     --ink-muted: #9aaea6;
     --line: #263a33;
+    --line-strong: #4f6f63;
     --primary: #5acca9;
     --primary-ink: #062019;
     --gold: #e8b54a;
@@ -45,6 +54,9 @@
     --red: #f07e92;
     --red-soft: #3a1d24;
     --focus: #5acca9;
+    --elevation-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px rgb(0 0 0 / 0.35);
+    --elevation-pop: 0 2px 4px rgb(0 0 0 / 0.35), 0 16px 40px -12px rgb(0 0 0 / 0.6);
+    --elevation-bar: 0 -1px 2px rgb(0 0 0 / 0.4), 0 -8px 24px -12px rgb(0 0 0 / 0.7);
   }
 }
 
@@ -55,6 +67,7 @@
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-primary: var(--primary);
   --color-primary-ink: var(--primary-ink);
   --color-gold: var(--gold);
@@ -70,4 +83,8 @@
   --radius-control: 10px;
   --radius-card: 12px;
   --radius-modal: 16px;
+
+  --shadow-card: var(--elevation-card);
+  --shadow-pop: var(--elevation-pop);
+  --shadow-bar: var(--elevation-bar);
 }

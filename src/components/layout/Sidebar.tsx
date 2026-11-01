@@ -45,14 +45,14 @@ export function Sidebar() {
             <Info className="size-3.5" />
             Acerca de Finanzia
           </Link>
-          <div className="flex items-center gap-2 text-[11px] text-ink-muted/80">
+          <div className="flex items-center gap-2 text-[11px] text-ink-muted">
             <Link to="/privacidad" className="hover:underline">Privacidad</Link>
             <span>•</span>
             <Link to="/terminos" className="hover:underline">Términos</Link>
           </div>
         </div>
 
-        <div className="pt-2 border-t border-line/60 space-y-1.5">
+        <div className="pt-2 border-t border-line space-y-1.5">
           <p className="text-[11px] text-ink-muted">
             Desarrollado por{' '}
             <a

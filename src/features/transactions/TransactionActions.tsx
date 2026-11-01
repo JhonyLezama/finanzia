@@ -27,18 +27,18 @@ export function TransactionActions({
       <DropdownMenu.Portal>
         <DropdownMenu.Content
           align="end"
-          className="z-50 min-w-36 rounded-[var(--radius-control)] border border-line bg-surface p-1 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out"
+          className="z-50 min-w-36 rounded-[var(--radius-control)] border border-line-strong bg-surface p-1 shadow-pop data-[state=open]:animate-in data-[state=closed]:animate-out"
         >
           <DropdownMenu.Item
             onSelect={() => onEdit(transaction)}
-            className="flex cursor-pointer items-center gap-2 rounded px-2.5 py-1.5 text-sm text-ink outline-none hover:bg-surface-2 focus:bg-surface-2"
+            className="flex min-h-10 cursor-pointer items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none hover:bg-surface-2 focus:bg-surface-2"
           >
             <Pencil className="size-4 text-ink-muted" aria-hidden="true" />
             Editar
           </DropdownMenu.Item>
           <DropdownMenu.Item
             onSelect={() => onDelete(transaction)}
-            className="flex cursor-pointer items-center gap-2 rounded px-2.5 py-1.5 text-sm text-red outline-none hover:bg-red-soft focus:bg-red-soft"
+            className="flex min-h-10 cursor-pointer items-center gap-2 rounded px-2.5 py-2 text-sm text-red outline-none hover:bg-red-soft focus:bg-red-soft"
           >
             <Trash2 className="size-4" aria-hidden="true" />
             Eliminar

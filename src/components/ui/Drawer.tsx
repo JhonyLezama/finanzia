@@ -16,7 +16,7 @@ export function Drawer({ open, onOpenChange, title, description, children, foote
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
         <RadixDialog.Overlay className="fixed inset-0 z-50 bg-black/45 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-        <RadixDialog.Content className="fixed inset-y-0 right-0 z-50 flex w-[min(100vw,28rem)] flex-col overflow-y-auto border-l border-line bg-surface p-5 shadow-2xl">
+        <RadixDialog.Content className="fixed inset-y-0 right-0 z-50 flex w-[min(100vw,28rem)] flex-col overflow-y-auto border-l border-line-strong bg-surface p-5 shadow-pop">
           <div className="flex items-start justify-between gap-4">
             <div>
               <RadixDialog.Title className="font-display text-xl font-semibold text-ink">

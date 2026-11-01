@@ -12,7 +12,7 @@ export function InstallPrompt() {
     <div
       role="region"
       aria-label="Instalar Finanzia"
-      className="fixed inset-x-3 bottom-20 z-40 mx-auto flex max-w-md items-center gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-3 shadow-xl sm:bottom-5"
+      className="fixed inset-x-3 bottom-20 z-40 mx-auto flex max-w-md items-center gap-3 rounded-[var(--radius-card)] border border-line-strong bg-surface p-3 shadow-pop sm:bottom-5"
     >
       <Download className="size-5 shrink-0 text-primary" aria-hidden="true" />
       <p className="flex-1 text-sm text-ink">

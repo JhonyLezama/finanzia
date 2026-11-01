@@ -8,7 +8,7 @@ export interface ChipProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const toneClasses: Record<ChipTone, string> = {
-  neutral: 'border-line bg-surface-2 text-ink-muted',
+  neutral: 'border-line-strong bg-surface-2 text-ink-muted',
   positive: 'border-primary/30 bg-primary/10 text-primary',
   gold: 'border-gold/40 bg-gold/15 text-gold-ink',
   danger: 'border-red/30 bg-red-soft text-red',

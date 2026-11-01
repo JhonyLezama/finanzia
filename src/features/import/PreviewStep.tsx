@@ -36,7 +36,7 @@ function Table({ title, rows }: { title: string; rows: ImportRow[] }) {
           </thead>
           <tbody>
             {rows.slice(0, 20).map((row) => (
-              <tr key={`${row.rowNumber}-${row.description}`} className="border-b border-line/70">
+              <tr key={`${row.rowNumber}-${row.description}`} className="border-b border-line">
                 <td className="py-2 pr-3 text-ink-muted">{row.rowNumber}</td>
                 <td className="py-2 pr-3">{formatDateShort(row.date)}</td>
                 <td className="py-2 pr-3">{row.description}</td>

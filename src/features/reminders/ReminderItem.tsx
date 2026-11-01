@@ -21,9 +21,9 @@ export interface ReminderItemProps {
 }
 
 const menuContentClass =
-  'z-50 min-w-44 overflow-hidden rounded-[var(--radius-control)] border border-line bg-surface p-1 shadow-lg animate-in fade-in-0 zoom-in-95';
+  'z-50 min-w-44 overflow-hidden rounded-[var(--radius-control)] border border-line-strong bg-surface p-1 shadow-pop animate-in fade-in-0 zoom-in-95';
 const menuItemClass =
-  'flex w-full cursor-pointer select-none items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none hover:bg-surface-2 focus:bg-surface-2';
+  'flex min-h-10 w-full cursor-pointer select-none items-center gap-2 rounded px-2.5 py-2 text-sm text-ink outline-none hover:bg-surface-2 focus:bg-surface-2';
 
 export function ReminderItem({
   reminder,
@@ -39,7 +39,7 @@ export function ReminderItem({
   const item = reminder.item;
 
   return (
-    <li className="flex min-w-0 items-start justify-between gap-3 border-b border-line/60 px-4 py-3 last:border-b-0 hover:bg-surface-2/40">
+    <li className="flex min-w-0 items-start justify-between gap-3 border-b border-line px-4 py-3 last:border-b-0 hover:bg-surface-2">
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <time dateTime={item.dueDate} className="font-medium text-ink-muted">
@@ -74,7 +74,7 @@ export function ReminderItem({
                 <button
                   type="button"
                   aria-label={`Acciones de ${item.name}`}
-                  className="flex size-9 items-center justify-center rounded-[var(--radius-control)] text-ink-muted hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                  className="flex size-11 items-center justify-center rounded-[var(--radius-control)] text-ink-muted hover:bg-surface-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                 >
                   <MoreHorizontal className="size-4" aria-hidden="true" />
                 </button>

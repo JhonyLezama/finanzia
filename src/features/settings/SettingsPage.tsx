@@ -105,7 +105,7 @@ export default function SettingsPage() {
               className={
                 section === item.id
                   ? 'min-h-11 shrink-0 whitespace-nowrap rounded-full bg-primary px-4 text-sm font-medium text-primary-ink'
-                  : 'min-h-11 shrink-0 whitespace-nowrap rounded-full border border-line bg-surface px-4 text-sm text-ink-muted hover:text-ink'
+                  : 'min-h-11 shrink-0 whitespace-nowrap rounded-full border border-line-strong bg-surface px-4 text-sm text-ink-muted shadow-card hover:text-ink'
               }
             >
               {item.label}

@@ -59,7 +59,7 @@ export function TransactionList({
     <div className="overflow-x-auto rounded-[var(--radius-card)] border border-line bg-surface">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="border-b border-line bg-surface-2/40 text-xs font-semibold text-ink-muted uppercase tracking-wider">
+          <tr className="border-b border-line bg-surface-2 text-xs font-semibold text-ink-muted uppercase tracking-wider">
             <th scope="col" className="px-4 py-3">Fecha</th>
             <th scope="col" className="px-4 py-3">Descripción</th>
             <th scope="col" className="px-4 py-3">Categoría</th>

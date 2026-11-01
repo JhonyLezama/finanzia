@@ -46,7 +46,7 @@ function KpiCard({
       role="group"
       aria-label={label}
       className={cn(
-        'relative flex flex-col justify-between overflow-hidden rounded-[var(--radius-card)] border p-4 sm:p-5 transition-all shadow-sm',
+        'relative flex flex-col justify-between overflow-hidden rounded-[var(--radius-card)] border p-4 sm:p-5 transition-all',
         cardClassName || 'border-line bg-surface',
       )}
     >
@@ -64,7 +64,7 @@ function KpiCard({
         </div>
       </div>
 
-      {hint ? <div className="mt-3 text-xs leading-relaxed text-ink-muted border-t border-line/40 pt-2.5">{hint}</div> : null}
+      {hint ? <div className="mt-3 text-xs leading-relaxed text-ink-muted border-t border-line pt-2.5">{hint}</div> : null}
     </Card>
   );
 }
@@ -120,7 +120,7 @@ export function KpiRow({
         <KpiCard
           label="Saldo real"
           icon={<Wallet className="size-4 text-primary" aria-hidden="true" />}
-          cardClassName="border-primary/25 bg-primary/[0.03] dark:bg-primary/[0.08]"
+          cardClassName="border-primary/40 bg-primary/[0.05] dark:bg-primary/[0.1]"
           valueClassName="text-ink"
           badge={
             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
@@ -131,7 +131,7 @@ export function KpiRow({
             <div className="space-y-1">
               <p>Todo tu dinero actual, incluyendo lo guardado en tus metas de ahorro.</p>
               {remainingSavingsCents > 0 || pendingFixedCents > 0 ? (
-                <p className="text-[11px] text-ink-muted/80">
+                <p className="text-[11px] text-ink-muted">
                   Compromisos del mes: <Money cents={asCents(pendingFixedCents + remainingSavingsCents)} />
                 </p>
               ) : null}
@@ -157,8 +157,8 @@ export function KpiRow({
           icon={<Sparkles className={cn('size-4', isHealthySpendable ? 'text-emerald-600 dark:text-emerald-400' : 'text-red')} aria-hidden="true" />}
           cardClassName={cn(
             isHealthySpendable
-              ? 'border-emerald-500/30 bg-emerald-500/[0.05] dark:bg-emerald-500/[0.1]'
-              : 'border-red/40 bg-red-soft/40',
+              ? 'border-emerald-500/45 bg-emerald-500/[0.08] dark:bg-emerald-500/[0.12]'
+              : 'border-red/60 bg-red-soft',
           )}
           valueClassName={isHealthySpendable ? 'text-emerald-800 dark:text-emerald-300' : 'text-red'}
           badge={
@@ -196,12 +196,12 @@ export function KpiRow({
                 <p className="font-medium text-ink">Sin margen diario por ahora.</p>
               )}
 
-              <details className="text-[11px] text-ink-muted/90 group pt-1">
+              <details className="text-[11px] text-ink-muted group pt-1">
                 <summary className="cursor-pointer select-none font-medium hover:text-ink inline-flex items-center gap-1">
                   <HelpCircle className="size-3" />
                   ¿Cómo se calcula este monto?
                 </summary>
-                <div className="mt-1.5 space-y-1 rounded bg-surface/70 p-2 text-ink border border-line/50">
+                <div className="mt-1.5 space-y-1 rounded bg-surface p-2 text-ink border border-line">
                   <p>
                     <strong>Saldo real</strong> (<Money cents={availableCents} />)
                     <br />
@@ -209,7 +209,7 @@ export function KpiRow({
                     <br />
                     − <strong>Ahorro protegido:</strong> <Money cents={remainingSavingsCents} />
                   </p>
-                  <p className="text-[10px] text-ink-muted italic border-t border-line/40 pt-1">
+                  <p className="text-[10px] text-ink-muted italic border-t border-line pt-1">
                     💡 Si necesitas más disponible, puedes retirar de tus metas de ahorro en cualquier momento.
                   </p>
                 </div>
@@ -235,7 +235,7 @@ export function KpiRow({
         icon={<TrendingUp className="size-4 text-ink-muted" aria-hidden="true" />}
         cardClassName={cn(
           isOverSpent
-            ? 'border-amber-500/30 bg-amber-500/[0.04] dark:bg-amber-500/[0.08]'
+            ? 'border-amber-500/45 bg-amber-500/[0.07] dark:bg-amber-500/[0.12]'
             : 'border-line bg-surface',
         )}
         valueClassName={isOverSpent ? 'text-amber-800 dark:text-amber-300' : 'text-ink'}

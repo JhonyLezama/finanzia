@@ -66,10 +66,10 @@ export function ReminderPanel({
 
         {due.length > 0 ? (
           <div>
-            <div className="bg-surface-2/60 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-ink-muted">
+            <div className="bg-surface-2 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-ink-muted">
               Vencidos y de hoy ({due.length})
             </div>
-            <ul aria-label="Vencidos y de hoy" className="divide-y divide-line/40">
+            <ul aria-label="Vencidos y de hoy" className="divide-y divide-line">
               {due.map((reminder) => (
                 <ReminderItem
                   key={reminder.item.id}
@@ -88,10 +88,10 @@ export function ReminderPanel({
 
         {upcoming.length > 0 ? (
           <div>
-            <div className="bg-surface-2/60 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-ink-muted">
+            <div className="bg-surface-2 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-ink-muted">
               Próximos 7 días ({upcoming.length})
             </div>
-            <ul aria-label="Próximos 7 días" className="divide-y divide-line/40">
+            <ul aria-label="Próximos 7 días" className="divide-y divide-line">
               {upcoming.map((reminder) => (
                 <ReminderItem
                   key={reminder.item.id}
@@ -109,7 +109,7 @@ export function ReminderPanel({
         ) : null}
 
         {hidden.length > 0 ? (
-          <div className="border-t border-line/60">
+          <div className="border-t border-line">
             <button
               type="button"
               onClick={onToggleHidden}
@@ -120,7 +120,7 @@ export function ReminderPanel({
             </button>
 
             {showHidden ? (
-              <ul aria-label="Pospuestos y ocultos" className="divide-y divide-line/40 bg-surface-2/20">
+              <ul aria-label="Pospuestos y ocultos" className="divide-y divide-line bg-surface-2">
                 {hidden.map((reminder) => (
                   <ReminderItem
                     key={reminder.item.id}

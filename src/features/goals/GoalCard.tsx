@@ -25,7 +25,7 @@ export function GoalCard({
   const tone = pct >= 100 ? 'ok' : 'ok';
 
   return (
-    <Card className="p-5 flex flex-col justify-between space-y-4 hover:border-ink/20 transition-colors">
+    <Card className="p-5 flex flex-col justify-between space-y-4 hover:border-line-strong transition-colors">
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div>

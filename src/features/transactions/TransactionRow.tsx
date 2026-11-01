@@ -21,7 +21,7 @@ export function TransactionRow({
   onDelete,
 }: TransactionRowProps) {
   return (
-    <tr className="border-b border-line hover:bg-surface-2/50 transition-colors">
+    <tr className="border-b border-line hover:bg-surface-2 transition-colors">
       <td className="px-4 py-3 text-sm text-ink-muted whitespace-nowrap">
         {formatDateShort(transaction.date)}
       </td>

@@ -35,9 +35,9 @@ export function AnnualTable({ annual }: AnnualTableProps) {
               <th scope="col" className="pb-2 px-3 last:pr-0 text-right">Tasa de ahorro</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line/60">
+          <tbody className="divide-y divide-line">
             {rows.map((row) => (
-              <tr key={row.month} className="hover:bg-surface-2/50">
+              <tr key={row.month} className="hover:bg-surface-2">
                 <td className="py-2.5 px-3 first:pl-0 font-medium text-ink">
                   {row.month}
                 </td>
@@ -61,7 +61,7 @@ export function AnnualTable({ annual }: AnnualTableProps) {
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t-2 border-line font-bold text-ink bg-surface-2/30">
+            <tr className="border-t-2 border-line font-bold text-ink bg-surface-2">
               <td className="py-3 px-3 first:pl-0 uppercase text-xs">Total anual</td>
               <td className="py-3 px-3 text-right text-primary">
                 <Money cents={totals.incomeCents} />
