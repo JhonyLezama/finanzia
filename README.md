@@ -1,4 +1,4 @@
-# Alcancía
+# Finanzia
 
 App de finanzas personales **local-first** para Perú: presupuesto mensual en soles, gastos
 fijos, metas de ahorro con aportes y retiros reales, reportes y auditoría. Funciona sin conexión,
@@ -36,13 +36,25 @@ se instala como PWA y no tiene cuentas ni backend: los datos quedan en el dispos
 ## Flujo principal
 
 1. `/onboarding`: saldo inicial, ingreso previsto, gastos fijos y primera meta (o datos de ejemplo).
-2. `/`: resumen del mes.
+2. `/`: resumen del mes con saldo real, disponible para gastar y gasto diario estimado.
 3. `/movimientos`: alta rápida, filtros, saldo corrido y deshacer.
 4. `/presupuesto`: plan mensual, pago de fijos, variables y cierre de mes.
 5. `/metas`: aportes y retiros reales.
-6. `/reportes`: KPIs, tendencia de 12 meses, categorías, variación y exportación CSV.
+6. `/reportes`: KPIs, tendencia de 12 meses, categorías, variación, exportación CSV e impresión/PDF limpio.
 7. `/importar`: CSV/XLSX con mapeo, deduplicación por hash, deshacer por lote y respaldo JSON.
 8. `/ajustes`: perfil, tema, categorías, recurrentes, datos, auditoría y PWA.
+
+## Recurrentes
+
+Los ingresos y gastos fijos se administran desde `Ajustes → Recurrentes`:
+
+- Se crean con un día del mes. Si ese día ya pasó, la primera aparición es el mes siguiente.
+- Se pueden editar sin cambiar el mes de inicio ni los movimientos ya generados.
+- Se pueden pausar (dejan de reservarse), reactivar y eliminar con confirmación. Al eliminar, los movimientos históricos se conservan.
+
+## Impresión y PDF
+
+El botón `Imprimir` de Reportes genera una hoja A4 solo con el reporte: oculta sidebar, header, navegación, calculadora y acciones, fuerza el tema claro y ajusta gráficos y tablas para que no se corten ni se salgan del ancho. La tabla de presupuesto arranca en una página nueva y las cabeceras se repiten si una tabla continúa.
 
 ## Datos y privacidad
 
