@@ -387,10 +387,11 @@ describe('planRepo.close', () => {
   });
 
   it('rejects closing the current or a future month', async () => {
-    await planRepo.getOrCreate('2026-10' as MonthKey);
+    const current = currentMonth();
+    await planRepo.getOrCreate(current);
 
-    await expect(planRepo.close('2026-10' as MonthKey)).rejects.toThrow(/termin/i);
-    await expect(planRepo.close('2026-11' as MonthKey)).rejects.toThrow(/termin/i);
+    await expect(planRepo.close(current)).rejects.toThrow(/termin/i);
+    await expect(planRepo.close(addMonths(current, 1))).rejects.toThrow(/termin/i);
   });
 
   it('rejects closing a month with pending items', async () => {
