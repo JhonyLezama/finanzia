@@ -46,7 +46,7 @@ export function TransactionFilters({
     <div className="space-y-4">
       {/* Month switcher & Search */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="inline-flex items-center gap-1 rounded-[var(--radius-control)] border border-line bg-surface p-1">
+        <div className="inline-flex items-center gap-1 self-start rounded-[var(--radius-control)] border border-line bg-surface p-1 sm:self-auto">
           <Button
             variant="ghost"
             size="sm"
