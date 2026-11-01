@@ -163,8 +163,17 @@ export default function SettingsPage() {
           onCreate={async (input) => {
             await recurringRepo.create(input);
           }}
+          onUpdate={async (id, input) => {
+            await recurringRepo.update(id, input, {});
+          }}
           onPause={async (id) => {
             await recurringRepo.pause(id);
+          }}
+          onResume={async (id) => {
+            await recurringRepo.resume(id);
+          }}
+          onDelete={async (id) => {
+            await recurringRepo.remove(id);
           }}
         />
       ) : null}

@@ -92,6 +92,17 @@ export function dueDateForMonth(key: MonthKey, dayOfMonth: number): ISODate {
   return `${year}-${pad2(month)}-${pad2(day)}` as ISODate;
 }
 
+/**
+ * Primer mes en el que debe aparecer una regla mensual.
+ * Si el día elegido ya pasó en el mes actual, la primera aparición es el mes siguiente
+ * (se asume que el movimiento de este mes ya se hizo).
+ */
+export function startMonthForDay(dayOfMonth: number, today: ISODate = todayInLima()): MonthKey {
+  const month = toMonthKey(today);
+  const currentDay = Number(today.slice(8, 10));
+  return dayOfMonth < currentDay ? addMonths(month, 1) : month;
+}
+
 export function formatMonthLong(key: MonthKey): string {
   const { year, month } = parseMonthKey(key);
   const label = new Intl.DateTimeFormat('es-PE', {

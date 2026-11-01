@@ -123,6 +123,21 @@ describe('recurringRepo.pause', () => {
   });
 });
 
+describe('recurringRepo.resume', () => {
+  it('reactivates a paused rule so it generates again', async () => {
+    const rule = await recurringRepo.create(ruleInput());
+    await recurringRepo.pause(rule.id);
+    await recurringRepo.resume(rule.id);
+
+    expect((await recurringRepo.list()).find((entry) => entry.id === rule.id)?.active).toBe(1);
+
+    await planRepo.getOrCreate('2026-11' as MonthKey);
+    const items = await planRepo.ensureItems('2026-11' as MonthKey);
+
+    expect(items.some((item) => item.recurringRuleId === rule.id)).toBe(true);
+  });
+});
+
 describe('recurringRepo.remove', () => {
   it('removes the rule but keeps its historical plan items', async () => {
     const rule = await recurringRepo.create(ruleInput());

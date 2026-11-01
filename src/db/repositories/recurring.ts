@@ -161,6 +161,34 @@ export const recurringRepo = {
     });
   },
 
+  async resume(id: UUID): Promise<void> {
+    await db.transaction('rw', [db.recurringRules, db.auditLog], async () => {
+      const current = await db.recurringRules.get(id);
+      if (!current) {
+        throw new Error('La regla no existe.');
+      }
+      if (current.active === 1) {
+        return;
+      }
+
+      const resumed: RecurringRule = {
+        ...current,
+        active: 1,
+        updatedAt: nextTimestamp(current.updatedAt),
+      };
+
+      await db.recurringRules.put(resumed);
+      await auditRepo.log({
+        action: 'update',
+        entity: 'recurring_rule',
+        entityId: resumed.id,
+        summary: `Regla recurrente reactivada: ${resumed.name}`,
+        before: current,
+        after: resumed,
+      });
+    });
+  },
+
   async remove(id: UUID): Promise<void> {
     await db.transaction('rw', [db.recurringRules, db.auditLog], async () => {
       const current = await db.recurringRules.get(id);

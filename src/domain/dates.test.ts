@@ -12,6 +12,7 @@ import {
   monthRange,
   monthsBetween,
   parseMonthKey,
+  startMonthForDay,
   toMonthKey,
   todayInLima,
 } from './dates';
@@ -83,6 +84,22 @@ describe('calendar dates', () => {
   it('formats months and short dates in Spanish', () => {
     expect(formatMonthLong('2026-10' as MonthKey)).toBe('Octubre de 2026');
     expect(formatDateShort('2026-10-05' as ISODate)).toBe('5 oct 2026');
+  });
+});
+
+describe('startMonthForDay', () => {
+  it('starts next month when the day already passed', () => {
+    expect(startMonthForDay(15, '2026-10-31' as ISODate)).toBe('2026-11');
+    expect(startMonthForDay(30, '2026-10-31' as ISODate)).toBe('2026-11');
+  });
+
+  it('keeps the current month when the day is today or later', () => {
+    expect(startMonthForDay(31, '2026-10-31' as ISODate)).toBe('2026-10');
+    expect(startMonthForDay(1, '2026-10-01' as ISODate)).toBe('2026-10');
+  });
+
+  it('rolls over the year', () => {
+    expect(startMonthForDay(15, '2026-12-31' as ISODate)).toBe('2027-01');
   });
 });
 
