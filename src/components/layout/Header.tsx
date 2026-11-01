@@ -8,7 +8,7 @@ export function Header() {
   const monthLabel = monthFormatter.format(new Date());
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line-strong bg-surface/95 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-line-strong bg-surface/95 backdrop-blur print:hidden">
       <div className="mx-auto flex min-h-14 w-full max-w-[1200px] items-center justify-between gap-3 px-4 sm:px-6 lg:min-h-16 lg:px-8">
         <span className="font-display text-lg font-semibold text-ink lg:hidden">Finanzia</span>
         <span className="hidden text-sm text-ink-muted lg:inline">Presupuesto personal</span>

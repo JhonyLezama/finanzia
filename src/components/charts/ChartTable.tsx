@@ -27,7 +27,7 @@ export function ChartTable({
   const [showTable, setShowTable] = useState(defaultShowTable);
 
   return (
-    <Card className={`p-4 sm:p-5 ${className ?? ''}`}>
+    <Card className={`p-4 sm:p-5 print:break-inside-avoid ${className ?? ''}`}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <h2 className="font-display font-semibold text-lg text-ink">{title}</h2>
         <Button
@@ -36,6 +36,7 @@ export function ChartTable({
           size="sm"
           onClick={() => setShowTable(!showTable)}
           aria-label={showTable ? 'Ver gráfico' : 'Ver tabla'}
+          className="print:hidden"
         >
           {showTable ? (
             <>
@@ -52,7 +53,7 @@ export function ChartTable({
       </div>
 
       {showTable ? (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto print:overflow-visible">
           <table
             className="w-full text-left text-sm"
             aria-label={tableName}

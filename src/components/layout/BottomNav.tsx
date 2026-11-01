@@ -6,7 +6,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Principal"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line-strong bg-surface pb-[env(safe-area-inset-bottom)] shadow-bar"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-line-strong bg-surface pb-[env(safe-area-inset-bottom)] shadow-bar print:hidden"
     >
       <ul className="grid grid-cols-5 px-1.5 pt-1.5">
         {navItems.map((item) => {

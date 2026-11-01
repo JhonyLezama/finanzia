@@ -10,7 +10,7 @@ export interface BudgetVarianceTableProps {
 
 export function BudgetVarianceTable({ rows }: BudgetVarianceTableProps) {
   return (
-    <Card className="p-4 sm:p-5 space-y-4">
+    <Card className="p-4 sm:p-5 space-y-4 print:break-before-page">
       <div>
         <h2 className="font-display font-semibold text-lg text-ink">Presupuesto vs. Real</h2>
         <p className="text-xs text-ink-muted mt-0.5">

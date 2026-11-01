@@ -150,7 +150,7 @@ export function FloatingCalculator() {
           type="button"
           aria-label="Abrir calculadora"
           className={cn(
-            'fixed bottom-36 right-4 z-30 flex size-12 items-center justify-center rounded-full border border-line-strong bg-surface text-ink shadow-card transition hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
+            'fixed bottom-36 right-4 z-30 flex size-12 items-center justify-center rounded-full border border-line-strong bg-surface text-ink shadow-card transition hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus print:hidden',
             'data-[state=open]:bg-primary data-[state=open]:text-primary-ink lg:bottom-6 lg:right-6 lg:size-14',
           )}
         >
@@ -173,7 +173,7 @@ export function FloatingCalculator() {
             contentRef.current?.focus();
           }}
           onKeyDown={handleKeyDown}
-          className="z-50 w-[min(92vw,19rem)] rounded-[var(--radius-card)] border border-line-strong bg-surface p-3 shadow-pop focus:outline-none"
+          className="z-50 w-[min(92vw,19rem)] rounded-[var(--radius-card)] border border-line-strong bg-surface p-3 shadow-pop focus:outline-none print:hidden"
         >
           <div className="mb-2 flex items-center justify-between">
             <h2 className="font-display text-sm font-semibold text-ink">Calculadora</h2>

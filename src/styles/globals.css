@@ -51,3 +51,77 @@
 @utility tabular {
   font-variant-numeric: tabular-nums;
 }
+
+@page {
+  size: A4 portrait;
+  margin: 12mm;
+}
+
+@media print {
+  :root,
+  :root[data-theme='dark'],
+  :root:not([data-theme='light']) {
+    color-scheme: light;
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f3f5f4;
+    --ink: #111827;
+    --ink-muted: #4b5563;
+    --line: #d1d5db;
+    --line-strong: #9ca3af;
+    --primary: #14624f;
+    --primary-ink: #ffffff;
+    --gold: #b7791f;
+    --gold-ink: #7a4d00;
+    --red: #b23a48;
+    --red-soft: #f7e6e8;
+    --focus: #14624f;
+    --elevation-card: none;
+    --elevation-pop: none;
+    --elevation-bar: none;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  tr,
+  img,
+  svg {
+    break-inside: avoid;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+
+  [data-sonner-toaster],
+  [data-radix-popper-content-wrapper] {
+    display: none !important;
+  }
+}

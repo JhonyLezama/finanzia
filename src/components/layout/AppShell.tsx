@@ -15,26 +15,26 @@ export function AppShell() {
     <div className="min-h-dvh bg-bg">
       <a
         href="#contenido"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-[var(--radius-control)] focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-ink"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-[var(--radius-control)] focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-ink print:hidden"
       >
         Saltar al contenido
       </a>
 
       {isDesktop ? <Sidebar /> : null}
 
-      <div className={isDesktop ? 'lg:pl-60' : 'pb-20'}>
+      <div className={isDesktop ? 'lg:pl-60 print:pl-0 print:pb-0' : 'pb-20 print:pb-0'}>
         <Header />
         <OfflineBanner />
         <main
           id="contenido"
-          className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
+          className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8 print:max-w-none print:px-0 print:py-0"
         >
           <Outlet />
         </main>
       </div>
 
       {!isDesktop ? (
-        <nav aria-label="Acciones rápidas">
+        <nav aria-label="Acciones rápidas" className="print:hidden">
           <Link
             to="/movimientos"
             aria-label="Registrar movimiento"

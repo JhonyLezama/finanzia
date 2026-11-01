@@ -5,7 +5,7 @@ import { navItems } from './nav-items';
 
 export function Sidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-line bg-surface">
+    <aside className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-line bg-surface print:hidden">
       <Link
         to="/"
         className="flex min-h-16 items-center gap-2 border-b border-line px-5 font-display text-lg font-semibold text-ink"

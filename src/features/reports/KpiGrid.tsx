@@ -23,7 +23,7 @@ export function KpiGrid({ report }: KpiGridProps) {
   } = report;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 print:grid-cols-3 print:gap-2 print:break-inside-avoid">
       {/* Ingresos */}
       <Card className="p-3.5 flex flex-col justify-between">
         <div className="flex items-center justify-between text-ink-muted">

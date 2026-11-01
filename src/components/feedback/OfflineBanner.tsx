@@ -24,7 +24,7 @@ export function OfflineBanner() {
   return (
     <div
       role="status"
-      className="flex items-center justify-center gap-2 border-b border-gold/40 bg-gold/15 px-4 py-2 text-sm text-gold-ink"
+      className="flex items-center justify-center gap-2 border-b border-gold/40 bg-gold/15 px-4 py-2 text-sm text-gold-ink print:hidden"
     >
       <WifiOff className="size-4 shrink-0" aria-hidden="true" />
       Sin conexión. Tus datos siguen acá.
