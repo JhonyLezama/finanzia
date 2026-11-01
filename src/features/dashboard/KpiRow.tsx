@@ -61,12 +61,12 @@ function KpiCard({
       )}
     >
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <span className="flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase text-ink-muted">
-            {icon}
-            {label}
+        <div className="flex flex-wrap items-start justify-between gap-x-2 gap-y-1">
+          <span className="flex min-w-0 items-center gap-1.5 text-[11px] font-semibold tracking-wide uppercase text-ink-muted sm:text-xs">
+            <span className="shrink-0">{icon}</span>
+            <span className="min-w-0 truncate">{label}</span>
           </span>
-          {badge}
+          {badge ? <span className="shrink-0 whitespace-nowrap">{badge}</span> : null}
         </div>
 
         <div className={cn('text-2xl sm:text-3xl font-bold tracking-tight', valueClassName || 'text-ink')}>
@@ -129,7 +129,7 @@ export function KpiRow({
     );
 
   return (
-    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
       {/* 1. Saldo Real (Patrimonio Total en Mano) */}
       {isCurrentMonth ? (
         <KpiCard
@@ -197,7 +197,7 @@ export function KpiRow({
                 'rounded-full px-2 py-0.5 text-[11px] font-semibold',
                 isHealthySpendable
                   ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300'
-                  : 'bg-red/15 text-red',
+                  : 'bg-surface text-red',
               )}
             >
               {isHealthySpendable ? 'Libre para gastar' : 'Ajustado / Negativo'}
