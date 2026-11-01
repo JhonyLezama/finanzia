@@ -84,6 +84,8 @@ describe('dashboard screen', () => {
 
     const available = screen.getByRole('group', { name: 'Saldo real' });
     expect(await within(available).findByText('S/ 2,950.00')).toBeInTheDocument();
+    expect(within(available).getByText(/por día/i)).toBeInTheDocument();
+    expect(within(available).getByText(/queda(n)? \d+ día/i)).toBeInTheDocument();
 
     const spendable = screen.getByRole('group', { name: 'Disponible para gastar' });
     expect(await within(spendable).findByText('S/ 2,650.00')).toBeInTheDocument();

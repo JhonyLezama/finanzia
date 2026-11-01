@@ -1,13 +1,23 @@
 import type { ReactNode } from 'react';
-import { Wallet, Sparkles, TrendingUp, PiggyBank, ArrowUpRight, HelpCircle } from 'lucide-react';
+import {
+  Wallet,
+  Sparkles,
+  TrendingUp,
+  PiggyBank,
+  ArrowUpRight,
+  HelpCircle,
+  CalendarDays,
+} from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Money } from '@/components/ui/Money';
 import type { DailyAllowance } from '@/domain/budget';
+import { daysInMonth, todayInLima } from '@/domain/dates';
 import { asCents, formatPercent } from '@/domain/money';
-import type { Cents } from '@/domain/models';
+import type { Cents, MonthKey } from '@/domain/models';
 import { cn } from '@/lib/cn';
 
 export interface KpiRowProps {
+  month: MonthKey;
   isCurrentMonth: boolean;
   availableCents: Cents;
   spendableCents: Cents;
@@ -70,6 +80,7 @@ function KpiCard({
 }
 
 export function KpiRow({
+  month,
   isCurrentMonth,
   availableCents,
   spendableCents,
@@ -85,6 +96,10 @@ export function KpiRow({
 }: KpiRowProps) {
   const isOverSpent = executionPct !== null && executionPct > 1;
   const isHealthySpendable = spendableCents > 0;
+  const today = todayInLima();
+  const daysRemaining = Math.max(1, daysInMonth(month) - Number(today.slice(8, 10)) + 1);
+  const realDailyCents =
+    availableCents > 0 ? asCents(Math.floor(availableCents / daysRemaining)) : null;
 
   // Cálculo semanal estimado: solo tiene sentido mostrar "por semana" si quedan al menos 7 días de mes
   // y nunca debe sugerir un valor mayor a todo el disponible real.
@@ -138,7 +153,22 @@ export function KpiRow({
             </div>
           }
         >
-          <Money cents={availableCents} />
+          <div className="space-y-2">
+            <div>
+              <Money cents={availableCents} />
+            </div>
+            {realDailyCents !== null ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-gold px-2.5 py-1 text-[11px] font-semibold leading-none text-[#102a24] shadow-sm">
+                  <CalendarDays className="size-3" aria-hidden="true" />≈{' '}
+                  <Money cents={realDailyCents} /> por día
+                </span>
+                <span className="text-[10px] font-medium leading-none text-ink-muted">
+                  {daysRemaining === 1 ? 'queda 1 día' : `quedan ${daysRemaining} días`}
+                </span>
+              </div>
+            ) : null}
+          </div>
         </KpiCard>
       ) : (
         <KpiCard

@@ -159,6 +159,7 @@ export default function DashboardPage() {
       ) : null}
 
       <KpiRow
+        month={month}
         isCurrentMonth={isCurrentMonth}
         availableCents={availableCents}
         spendableCents={spendableCents}
